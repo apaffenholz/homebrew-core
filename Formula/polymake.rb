@@ -1,6 +1,6 @@
 class Polymake < Formula
   desc "Tool for computations in algorithmic discrete geometry"
-  homepage "https://polymake.org"
+  homepage "https://polymake.org/"
   url "https://polymake.org/lib/exe/fetch.php/download/polymake-3.2r3.tar.bz2"
   sha256 "8423dac8938dcd96e15b1195432f6a9844e8c34727c829395755a5067ce43440"
 
@@ -37,8 +37,8 @@ class Polymake < Formula
     end
 
     system "./configure", "--prefix=#{prefix}",
-                          "--without-java",
                           "--without-bliss",
+                          "--without-java",
                           "--without-soplex"
 
     system "ninja", "-C", "build/Opt", "install"
@@ -47,11 +47,7 @@ class Polymake < Formula
 
   test do
     assert_match "1 23 23 1", shell_output("#{bin}/polymake 'print cube(3)->H_STAR_VECTOR'")
-    stdout, stderr, = Open3.capture3("#{bin}/polymake 'my $a=new Array<SparseMatrix<Float>>'")
-    assert_predicate stderr, :empty?
-    assert_predicate stdout, :empty?
-    recompiling_info = /^polymake:  WARNING: Recompiling in .* please be patient\.\.\.$/
-    _, stderr, = Open3.capture3("#{bin}/polymake 'my $a=new Array<SparseMatrix<Float>>'")
-    assert_match recompiling_info, stderr
+    assert_match "", shell_output("#{bin}/polymake 'my $a=new Array<SparseMatrix<Float>>' 2>&1")
+    assert_match /^polymake:  WARNING: Recompiling in .* please be patient\.\.\.$/, shell_output("#{bin}/polymake 'my $a=new Array<SparseMatrix<Float>>' 2>&1")
   end
 end
