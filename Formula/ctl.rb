@@ -3,21 +3,32 @@ class Ctl < Formula
   homepage "https://github.com/ampas/CTL"
   url "https://github.com/ampas/CTL/archive/ctl-1.5.2.tar.gz"
   sha256 "d7fac1439332c4d84abc3c285b365630acf20ea041033b154aa302befd25e0bd"
-  revision 2
+  revision 4
 
   bottle do
-    sha256 "edb2ab8944366710827ab289c0c0c6846642524fd0928dfab8cb8be033cd465d" => :high_sierra
-    sha256 "6668abc43f329b3220882182fa9f45c04e273f9f3d91a78a9c352df55d85171c" => :sierra
-    sha256 "744fa25276716928e3b7e43e1f176151fdcf1b60fab95b2f3308467d77bf75a6" => :el_capitan
+    sha256 "e76d1577ae18eff19a8a4b82941ab42d1be88e0cede2e6f53daaf611363a1eee" => :catalina
+    sha256 "42fae5bdcc9ebd6fdcf65048748659a0f5d27169396cf4dc2aef6668263ff8a4" => :mojave
+    sha256 "1a63d9afedf0845adb9daf5b7700c5715217e477b99453dc02c50be0eb9e8565" => :high_sierra
   end
 
   depends_on "cmake" => :build
-  depends_on "libtiff"
-  depends_on "ilmbase"
-  depends_on "openexr"
   depends_on "aces_container"
+  depends_on "ilmbase"
+  depends_on "libtiff"
+  depends_on "openexr"
+
+  patch do
+    url "https://github.com/ampas/CTL/pull/73.diff?full_index=1"
+    sha256 "119c2410403d16d1ecfe88bc687c16a0a5645f91824eec8de2d996d1248a06fd"
+  end
+
+  patch do
+    url "https://github.com/ampas/CTL/pull/74.diff?full_index=1"
+    sha256 "0c261caf34f14a097811ceb82fc1d9aa29bc6c4861921361e6eb1b4fe5f8ebae"
+  end
 
   def install
+    ENV.cxx11
     ENV.delete "CTL_MODULE_PATH"
 
     mkdir "build" do

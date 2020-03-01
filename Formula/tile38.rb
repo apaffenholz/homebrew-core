@@ -1,29 +1,34 @@
 class Tile38 < Formula
   desc "In-memory geolocation data store, spatial index, and realtime geofence"
-  homepage "http://tile38.com"
-  url "https://github.com/tidwall/tile38/archive/1.12.1.tar.gz"
-  sha256 "f433ab485b058cd197b77fb7c34f23cca735b123ac956c5c15296d9d5e352a17"
-  head "https://github.com/tidwall/tile38.git"
+  homepage "https://tile38.com/"
+  url "https://github.com/tidwall/tile38.git",
+    :tag      => "1.19.5",
+    :revision => "0490734b74cdf96f52c9f9af4d6774a9ae0f627d"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "fe6cb6983a73d2e97210a6ba0ae1b657f0cf7bbb910c39b0f0849693a4fd79c2" => :high_sierra
-    sha256 "430eb77acb61a93538b74fa931db54f3d3777cae62124e362f00af9b551f0d3b" => :sierra
-    sha256 "691b0ea2317389ec54391019865029e97f08d48d81dc809f45cf09d718d379bc" => :el_capitan
+    sha256 "4eb930318448d4302ca69361d98b3913891cf8fc76977ff6bdb67dc6780c3251" => :catalina
+    sha256 "00d5789489dbe6c29f79ae91c7a51c51d8467c968d7db25eaf6056fbb30f3aa1" => :mojave
+    sha256 "ac4e401bad311a885609a71e59fa2965c9bc97d4e4735cec82277da8c0a940f1" => :high_sierra
   end
 
   depends_on "go" => :build
-  depends_on "godep" => :build
 
   def datadir
     var/"tile38/data"
   end
 
   def install
-    ENV["GOPATH"] = buildpath
-    system "make"
+    commit = Utils.popen_read("git rev-parse --short HEAD").chomp
 
-    bin.install "tile38-cli", "tile38-server"
+    ldflags = %W[
+      -s -w
+      -X github.com/tidwall/tile38/core.Version=#{version}
+      -X github.com/tidwall/tile38/core.GitSHA=#{commit}
+    ]
+
+    system "go", "build", "-o", bin/"tile38-server", "-ldflags", ldflags.join(" "), "./cmd/tile38-server"
+    system "go", "build", "-o", bin/"tile38-cli", "-ldflags", ldflags.join(" "), "./cmd/tile38-cli"
   end
 
   def post_install
@@ -33,7 +38,7 @@ class Tile38 < Formula
 
   def caveats; <<~EOS
     To connect: tile38-cli
-    EOS
+  EOS
   end
 
   plist_options :manual => "tile38-server -d #{HOMEBREW_PREFIX}/var/tile38/data"
@@ -66,10 +71,19 @@ class Tile38 < Formula
         <string>#{var}/log/tile38.log</string>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do
-    system bin/"tile38-cli", "-h"
+    pid = fork do
+      exec "#{bin}/tile38-server", "-q"
+    end
+    sleep 2
+    # remove `$408` in the first line output
+    json_output = shell_output("#{bin}/tile38-cli server").lines[1]
+    tile38_server = JSON.parse(json_output)
+    assert_equal tile38_server["ok"], true
+  ensure
+    Process.kill("HUP", pid)
   end
 end

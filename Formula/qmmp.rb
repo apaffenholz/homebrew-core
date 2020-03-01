@@ -1,38 +1,49 @@
 class Qmmp < Formula
   desc "Qt-based Multimedia Player"
-  homepage "http://qmmp.ylsoftware.com/"
-  url "http://qmmp.ylsoftware.com/files/qmmp-1.2.1.tar.bz2"
-  sha256 "b9314126adf72534d3ba907246b075a45a997578e5fb86e52769e01602e4e8a9"
-  head "https://svn.code.sf.net/p/qmmp-dev/code/branches/qmmp-1.2/"
+  homepage "https://sourceforge.net/projects/qmmp-dev/"
+  url "https://downloads.sourceforge.net/project/qmmp-dev/qmmp/qmmp-1.3.6.tar.bz2"
+  sha256 "e842ab14a335c09ee2941ecdac4b47ce9a9e916d523dfe30e98e0569b6f13036"
+  head "https://svn.code.sf.net/p/qmmp-dev/code/branches/qmmp-1.3/"
 
   bottle do
-    sha256 "221e26205bbbccf57d16f8317213c2ba9c120bd7766f07d68127f834e54fc3e1" => :high_sierra
-    sha256 "c834f256c2efbd8353e56dd27321b0e34087fd3e275e429ed135507d8c21aea1" => :sierra
-    sha256 "8be08514cb41775e7ede35d644b526f5066e3ad7d763dc954accb025379a2b1d" => :el_capitan
+    sha256 "8181b5ae57e8e904e3736c55726933676268ccf36ab8ac59c54deae877585abf" => :catalina
+    sha256 "8b899200ea22175d4c06b765e172971270debb08e7838434148807429b6f8deb" => :mojave
+    sha256 "ff847d45a6217fe3cb31d8e7f938a81ec03583ebac0c4fac7e6fd7566f4efef9" => :high_sierra
   end
 
   depends_on "cmake" => :build
-  depends_on "qt"
+  depends_on "faad2"
   depends_on "ffmpeg"
   depends_on "flac"
+  depends_on "libbs2b"
+  depends_on "libmms"
+  depends_on "libogg"
+  depends_on "libsamplerate"
+  depends_on "libsndfile"
+  depends_on "libsoxr"
   depends_on "libvorbis"
   depends_on "mad"
-  depends_on "libogg"
-  depends_on "libsoxr"
-  depends_on "faad2"
+  depends_on "mplayer"
+  depends_on "musepack"
   depends_on "opus"
   depends_on "opusfile"
-  depends_on "mplayer"
-  depends_on "libbs2b"
-  depends_on "libsndfile"
-  depends_on "musepack"
+  depends_on "qt"
   depends_on "taglib"
-  depends_on "libmms"
-  depends_on "libsamplerate"
 
   def install
     system "cmake", "./", "-USE_SKINNED", "-USE_ENCA", "-USE_QMMP_DIALOG", *std_cmake_args
     system "make", "install"
+
+    # fix linkage
+    cd (lib.to_s) do
+      Dir["*.dylib", "qmmp/*/*.so"].select { |f| File.ftype(f) == "file" }.each do |f|
+        MachO::Tools.dylibs(f).select { |d| d.start_with?("/tmp") }.each do |d|
+          bname = File.dirname(d)
+          d_new = d.sub(bname, opt_lib.to_s)
+          MachO::Tools.change_install_name(f, d, d_new)
+        end
+      end
+    end
   end
 
   test do

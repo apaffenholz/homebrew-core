@@ -1,60 +1,28 @@
 class Cppcheck < Formula
   desc "Static analysis of C and C++ code"
   homepage "https://sourceforge.net/projects/cppcheck/"
-  url "https://github.com/danmar/cppcheck/archive/1.83.tar.gz"
-  sha256 "7d3656762beee8087e234a796c900c84b004ac241301106b6a2c01ef2beff095"
+  url "https://github.com/danmar/cppcheck/archive/1.90.tar.gz"
+  sha256 "c4864d3e09359214efdd503b52e241f4f56ba7ce26f8c11939fd9dcfac1fd105"
   head "https://github.com/danmar/cppcheck.git"
 
   bottle do
-    sha256 "03c7cac9057f221e141c98b4c3430a913487172675fd716420539f681e349975" => :high_sierra
-    sha256 "e231ea045e58fcbd318a96dcfce65df81b15b78b7583328ecb0b7be2d653f421" => :sierra
-    sha256 "5526b65da29062085aae6b387dd34b653896248f3c81695f2898ad38f386dae9" => :el_capitan
+    sha256 "4f48c99a90e92048ad0a86b8cbd9666705c6d3befc5cbf17ba3ed366be624737" => :catalina
+    sha256 "4cb4dd593b0532859e6f946315b5e944dd6cb24d9c98b613eed04f6a0f13fde1" => :mojave
+    sha256 "2bd9cd492ab6ac7f6c7cba2e4bc7acc097169326d5aac3253bceab317dcc4933" => :high_sierra
   end
 
-  option "without-rules", "Build without rules (no pcre dependency)"
-  option "with-qt", "Build the cppcheck GUI (requires Qt)"
-
-  deprecated_option "no-rules" => "without-rules"
-  deprecated_option "with-gui" => "with-qt"
-  deprecated_option "with-qt5" => "with-qt"
-
-  depends_on "pcre" if build.with? "rules"
-  depends_on "qt" => :optional
-
-  needs :cxx11
+  depends_on "pcre"
 
   def install
     ENV.cxx11
 
-    # Man pages aren't installed as they require docbook schemas.
+    system "make", "HAVE_RULES=yes", "FILESDIR=#{prefix}/cfg"
 
-    # Pass to make variables.
-    if build.with? "rules"
-      system "make", "HAVE_RULES=yes", "CFGDIR=#{prefix}/cfg"
-    else
-      system "make", "HAVE_RULES=no", "CFGDIR=#{prefix}/cfg"
-    end
-
-    # CFGDIR is relative to the prefix for install, don't add #{prefix}.
-    system "make", "DESTDIR=#{prefix}", "BIN=#{bin}", "CFGDIR=/cfg", "install"
+    # FILESDIR is relative to the prefix for install, don't add #{prefix}.
+    system "make", "DESTDIR=#{prefix}", "BIN=#{bin}", "FILESDIR=/cfg", "install"
 
     # Move the python addons to the cppcheck pkgshare folder
-    (pkgshare/"addons").install Dir.glob(bin/"*.py")
-
-    if build.with? "qt"
-      cd "gui" do
-        if build.with? "rules"
-          system "qmake", "HAVE_RULES=yes",
-                          "INCLUDEPATH+=#{Formula["pcre"].opt_include}",
-                          "LIBS+=-L#{Formula["pcre"].opt_lib}"
-        else
-          system "qmake", "HAVE_RULES=no"
-        end
-
-        system "make"
-        prefix.install "cppcheck-gui.app"
-      end
-    end
+    (pkgshare/"addons").install Dir.glob("addons/*.py")
   end
 
   test do

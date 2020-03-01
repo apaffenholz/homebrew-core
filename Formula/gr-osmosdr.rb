@@ -1,16 +1,15 @@
 class GrOsmosdr < Formula
   desc "Osmocom GNU Radio Blocks"
   homepage "https://osmocom.org/projects/sdr/wiki/GrOsmoSDR"
-  url "https://cgit.osmocom.org/gr-osmosdr/snapshot/gr-osmosdr-0.1.4.tar.gz"
-  mirror "https://github.com/osmocom/gr-osmosdr/archive/v0.1.4.tar.gz"
+  url "https://github.com/osmocom/gr-osmosdr/archive/v0.1.4.tar.gz"
   sha256 "bcf9a9b1760e667c41a354e8cd41ef911d0929d5e4a18e0594ccb3320d735066"
-  revision 1
+  revision 9
 
   bottle do
     cellar :any
-    sha256 "c53bb7dca86390de755fd994452bca8b225b628d0467756ba7a77451efd2f378" => :high_sierra
-    sha256 "a4a62d458c37f5a46641a9c66622c079b0168c4e117878ceb0707f28b08fd93b" => :sierra
-    sha256 "ce73204234a4b56739e28fbcdbd6c8ca1c44ada096f30a7b78a56056706811ac" => :el_capitan
+    sha256 "7fd2370bc3f22dd0448e827f12d41dea8b04fdecf57669ddf8b437fb982fce55" => :catalina
+    sha256 "8b0d2f0803b136645d597787a74d3f7d5079136e0dc16e2c7919e09ae3211283" => :mojave
+    sha256 "494b8a534f23ac18f613bf5042e9f2baa3235fc58be303b362942910f223c6e8" => :high_sierra
   end
 
   depends_on "cmake" => :build
@@ -43,11 +42,11 @@ class GrOsmosdr < Formula
     (testpath/"test.cpp").write <<~EOS
       #include <osmosdr/device.h>
       int main() {
-        osmosdr::device_t device();
+        osmosdr::device_t device;
         return 0;
       }
     EOS
-    system ENV.cc, "test.cpp", "-L#{lib}", "-lgnuradio-osmosdr", "-o", "test"
+    system ENV.cxx, "test.cpp", "-L#{lib}", "-lgnuradio-osmosdr", "-o", "test"
     system "./test"
   end
 end

@@ -3,56 +3,74 @@
 class Nethack < Formula
   desc "Single-player roguelike video game"
   homepage "https://www.nethack.org/"
-  url "https://www.nethack.org/download/3.6.1/nethack-361-src.tgz"
-  version "3.6.1"
-  sha256 "4b8cbf1cc3ad9f6b9bae892d44a9c63106d44782a210906162a7c3be65040ab6"
-  head "https://git.code.sf.net/p/nethack/NetHack.git", :branch => "NetHack-3.6.1"
+  url "https://nethack.org/download/3.6.5/nethack-365-src.tgz"
+  version "3.6.5"
+  sha256 "bb6aef2b7a4cf9463c5c4b506b80645379125c0f8de57ad7acd639872fd22e76"
+  head "https://github.com/NetHack/NetHack.git"
 
   bottle do
-    sha256 "a57fbc5bdea2350dc989315ca1366da7778496421fd1962ceca266897754b2cf" => :high_sierra
-    sha256 "57db6043731411211c6de280e66c98394f0b13db000f26749afb243bf0211289" => :sierra
-    sha256 "fe8264cd2c58b19c58b4192f1eb74fe8e44f503885a300ef1cba71c402abe4d3" => :el_capitan
+    rebuild 1
+    sha256 "32ce4c30778ee034641e0659aa351b1d8db9ac41fd6bc10bf3de590d600b57ca" => :catalina
+    sha256 "a987ad9df89f765d3d2b8451c4cfbdd6728e64b3fb239d5b2af6da76a706460b" => :mojave
+    sha256 "4ee79f011195859ee87569c6d7080d438d9e7d23e4a096a437187da8479cc126" => :high_sierra
   end
 
-  # Don't remove save folder
-  skip_clean "libexec/save"
+  uses_from_macos "bison" => :build
+  uses_from_macos "flex" => :build
+  uses_from_macos "ncurses"
 
   def install
-    # Build everything in-order
     ENV.deparallelize
 
-    # Generate makefiles for OS X
+    # Fixes https://github.com/NetHack/NetHack/issues/274
+    ENV.O0
+
     cd "sys/unix" do
-      if MacOS.version >= :yosemite
-        hintfile = "macosx10.10"
-      elsif MacOS.version >= :lion
-        hintfile = "macosx10.7"
+      if MacOS.version >= :mojave
+        hintfile = "macosx10.14"
       else
-        hintfile = "macosx10.5"
+        hintfile = "macosx10.10"
       end
 
-      inreplace "hints/#{hintfile}",
-                /^HACKDIR=.*/,
-                "HACKDIR=#{libexec}"
+      # Enable wizard mode for all users
+      inreplace "sysconf", /^WIZARDS=.*/, "WIZARDS=*"
+
+      # Enable curses interface
+      # Setting VAR_PLAYGROUND preserves saves across upgrades
+      inreplace "hints/#{hintfile}" do |s|
+        s.change_make_var! "HACKDIR", libexec
+        s.change_make_var! "CHOWN", "true"
+        s.change_make_var! "CHGRP", "true"
+        s.gsub! "#WANT_WIN_CURSES=1", "WANT_WIN_CURSES=1\nCFLAGS+=-DVAR_PLAYGROUND='\"#{HOMEBREW_PREFIX}/share/nethack\"'"
+      end
 
       system "sh", "setup.sh", "hints/#{hintfile}"
     end
 
-    # Enable wizard mode for all users
-    inreplace "sys/unix/sysconf",
-      /^WIZARDS=.*/,
-      "WIZARDS=*"
-
-    # Make the game
     system "make", "install"
-    bin.install "src/nethack"
-    (libexec+"save").mkpath
-
-    # Enable `man nethack`
+    bin.install_symlink libexec/"nethack"
     man6.install "doc/nethack.6"
+  end
 
-    # These need to be group-writable in multi-user situations
-    chmod "g+w", libexec
-    chmod "g+w", libexec+"save"
+  def post_install
+    # These need to exist (even if empty) otherwise nethack won't start
+    savedir = HOMEBREW_PREFIX/"share/nethack"
+    mkdir_p savedir
+    cd savedir do
+      %w[xlogfile logfile perm record].each do |f|
+        touch f
+      end
+      mkdir_p "save"
+      touch "save/.keepme" # preserve on `brew cleanup`
+    end
+    # Set group-writeable for multiuser installs
+    chmod "g+w", savedir
+    chmod "g+w", savedir/"save"
+  end
+
+  test do
+    system "#{bin}/nethack", "-s"
+    assert_match (HOMEBREW_PREFIX/"share/nethack").to_s,
+                 shell_output("#{bin}/nethack --showpaths")
   end
 end

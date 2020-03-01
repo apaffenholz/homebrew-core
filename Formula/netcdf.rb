@@ -1,20 +1,19 @@
 class Netcdf < Formula
   desc "Libraries and data formats for array-oriented scientific data"
   homepage "https://www.unidata.ucar.edu/software/netcdf"
-  url "https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-4.6.1.tar.gz"
-  mirror "https://www.gfd-dennou.org/library/netcdf/unidata-mirror/netcdf-4.6.1.tar.gz"
-  sha256 "89c7957458740b763ae828c345240b8a1d29c2c1fed0f065f99b73181b0b2642"
-  revision 2
+  url "https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-c-4.7.3.tar.gz"
+  sha256 "8e8c9f4ee15531debcf83788594744bd6553b8489c06a43485a15c93b4e0448b"
+  revision 1
 
   bottle do
-    sha256 "abcb78a704284d5bf17cb43ca1be29c1fa9f90e9c4bd34aa6eb9e4030fa85627" => :high_sierra
-    sha256 "8a1046712a354d16f1ad76be178ec99eeaeb77d1fb3db070707ac0bd09ac7119" => :sierra
-    sha256 "2f02d1db2d1c78afcb0e3a1f6bf42dced39f3b1eff880495d796528139b0cbb4" => :el_capitan
+    sha256 "9e217ac938403f5bf547a3c62984ec2979c5d02af10dd2c2023e180e4a2bd90a" => :catalina
+    sha256 "eedecd250d0c0069dc6484685741446fe67fd2d373ef015e2b6de3f228cc388e" => :mojave
+    sha256 "e81f0655b42db959dbcbaaf7471a5c2567fdd11cfd1ed159c529c12b2964810a" => :high_sierra
   end
 
   depends_on "cmake" => :build
-  depends_on "hdf5"
   depends_on "gcc" # for gfortran
+  depends_on "hdf5"
 
   resource "cxx" do
     url "https://github.com/Unidata/netcdf-cxx4/archive/v4.3.0.tar.gz"
@@ -28,9 +27,9 @@ class Netcdf < Formula
   end
 
   resource "fortran" do
-    url "https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-fortran-4.4.4.tar.gz"
-    mirror "https://www.gfd-dennou.org/arch/netcdf/unidata-mirror/netcdf-fortran-4.4.4.tar.gz"
-    sha256 "b2d395175f8d283e68c8be516e231a96b191ade67ad0caafaf7fa01b1e6b5d75"
+    url "https://www.unidata.ucar.edu/downloads/netcdf/ftp/netcdf-fortran-4.5.2.tar.gz"
+    mirror "https://www.gfd-dennou.org/arch/netcdf/unidata-mirror/netcdf-fortran-4.5.2.tar.gz"
+    sha256 "b959937d7d9045184e9d2040a915d94a7f4d0185f4a9dceb8f08c94b0c3304aa"
   end
 
   def install
@@ -40,9 +39,8 @@ class Netcdf < Formula
 
     mkdir "build" do
       args = common_args.dup
-      args << "-DENABLE_TESTS=OFF"
       args << "-DNC_EXTRA_DEPS=-lmpi" if Tab.for_name("hdf5").with? "mpi"
-      args << "-DENABLE_DAP_AUTH_TESTS=OFF" << "-DENABLE_NETCDF_4=ON" << "-DENABLE_DOXYGEN=OFF"
+      args << "-DENABLE_TESTS=OFF" << "-DENABLE_NETCDF_4=ON" << "-DENABLE_DOXYGEN=OFF"
 
       system "cmake", "..", "-DBUILD_SHARED_LIBS=ON", *args
       system "make", "install"
@@ -54,7 +52,7 @@ class Netcdf < Formula
 
     # Add newly created installation to paths so that binding libraries can
     # find the core libs.
-    args = common_args.dup << "-DNETCDF_C_LIBRARY=#{lib}"
+    args = common_args.dup << "-DNETCDF_C_LIBRARY=#{lib}/libnetcdf.dylib"
 
     cxx_args = args.dup
     cxx_args << "-DNCXX_ENABLE_TESTS=OFF"
@@ -135,7 +133,7 @@ class Netcdf < Formula
           if (status /= nf90_noerr) call abort
         end subroutine check
       end program test
-      EOS
+    EOS
     system "gfortran", "test.f90", "-L#{lib}", "-I#{include}", "-lnetcdff",
                        "-o", "testf"
     system "./testf"

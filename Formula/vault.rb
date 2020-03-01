@@ -5,20 +5,18 @@ class Vault < Formula
   desc "Secures, stores, and tightly controls access to secrets"
   homepage "https://vaultproject.io/"
   url "https://github.com/hashicorp/vault.git",
-      :tag => "v0.10.1",
-      :revision => "756fdc4587350daf1c65b93647b2cc31a6f119cd"
+      :tag      => "v1.3.2",
+      :revision => "d433f38172a75f69ab0f40158936f9ac7c24f0ee"
   head "https://github.com/hashicorp/vault.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "d95f1776f9244eb4250f9623407f280f4ac4651fd488e54e113e24d7acb9fd85" => :high_sierra
-    sha256 "c1840e30d25c7e8b6b3aa31b2097c4786ce6e93bfaebf11dd4e985494cd6c928" => :sierra
-    sha256 "93ad8024af250d62a0469e9b7d6a871cf7c7acd21ec74460c4990516c335be95" => :el_capitan
+    sha256 "84c4a6e81cdc878dd540faf9edfad776dd798a6a6da9fbb3e1220d8a7303c849" => :catalina
+    sha256 "1abf060fe337bf251e550a1de773b0527bd5eb722477b723032a70ea5fece3cf" => :mojave
+    sha256 "24f2b8ae945ae0c7e431bdeedbecf559ae07a78c9b2a257f70e9594a6bea4249" => :high_sierra
   end
 
-  option "with-dynamic", "Build dynamic binary with CGO_ENABLED=1"
-
-  depends_on "go" => :build
+  depends_on "go@1.12" => :build
   depends_on "gox" => :build
 
   def install
@@ -30,11 +28,43 @@ class Vault < Formula
     (buildpath/"bin").mkpath
 
     cd "src/github.com/hashicorp/vault" do
-      target = build.with?("dynamic") ? "dev-dynamic" : "dev"
-      system "make", target
+      system "make", "dev"
       bin.install "bin/vault"
       prefix.install_metafiles
     end
+  end
+
+  plist_options :manual => "vault server -dev"
+
+  def plist; <<~EOS
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+      <dict>
+        <key>KeepAlive</key>
+        <dict>
+          <key>SuccessfulExit</key>
+          <false/>
+        </dict>
+        <key>Label</key>
+        <string>#{plist_name}</string>
+        <key>ProgramArguments</key>
+        <array>
+          <string>#{opt_bin}/vault</string>
+          <string>server</string>
+          <string>-dev</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>WorkingDirectory</key>
+        <string>#{var}</string>
+        <key>StandardErrorPath</key>
+        <string>#{var}/log/vault.log</string>
+        <key>StandardOutPath</key>
+        <string>#{var}/log/vault.log</string>
+      </dict>
+    </plist>
+  EOS
   end
 
   test do

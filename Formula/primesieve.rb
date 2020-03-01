@@ -1,14 +1,14 @@
 class Primesieve < Formula
   desc "Fast C/C++ prime number generator"
-  homepage "https://primesieve.org/"
-  url "https://github.com/kimwalisch/primesieve/archive/v7.0.tar.gz"
-  sha256 "cfe61451dcb2d0fd9e7beadac55a1a6399acf9223615b0df50e9f90e2f1a3432"
+  homepage "https://github.com/kimwalisch/primesieve"
+  url "https://github.com/kimwalisch/primesieve/archive/v7.5.tar.gz"
+  sha256 "fbc4070b2af4b87e2cff7ce3434f79af04d843594be43bba14293674475ec03c"
 
   bottle do
     cellar :any
-    sha256 "1cac8717470a1a7edf3d6512e04be73b7712bc46febcfad05ef90cc2522e85b5" => :high_sierra
-    sha256 "9d07453e002a227aac81523b06e2a2224e1dd6e3e727350c92c3cdd531685300" => :sierra
-    sha256 "2506d0b7a7a5aa370010b4713bc4725470f4baa7d93f73a6f49ffdbc108c18f4" => :el_capitan
+    sha256 "93a49e499f6cca69e9bc62e64e3bbf51fd9c8ab3c51e6ba15b6a1ab3feb4d2e8" => :catalina
+    sha256 "7070ec9a601335d1844820e722c346b9d7003ce80af4450f631521a023c291bc" => :mojave
+    sha256 "46185fc5980d6e411f4073ea330735498d918bb25dc65cb90909bb41749e8756" => :high_sierra
   end
 
   depends_on "cmake" => :build

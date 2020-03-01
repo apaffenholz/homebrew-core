@@ -1,20 +1,24 @@
 class Libxc < Formula
   desc "Library of exchange and correlation functionals for codes"
-  homepage "http://octopus-code.org/wiki/Libxc"
-  url "http://www.tddft.org/programs/octopus/down.php?file=libxc/3.0.1/libxc-3.0.1.tar.gz"
-  sha256 "836692f2ab60ec3aca0cca105ed5d0baa7d182be07cc9d0daa7b80ee1362caf7"
-  revision 2
+  homepage "https://tddft.org/programs/libxc/"
+  url "https://gitlab.com/libxc/libxc/-/archive/4.3.4/libxc-4.3.4.tar.bz2"
+  sha256 "0efe8b33d151de8787e33c4ba8e2161ffb9da978753f3bd12c5c0a018e7d3ef5"
 
   bottle do
     cellar :any
-    sha256 "9ea81e66b245bde49b75db6707a2e6114eb83e393dbc25bcc07e81e2cf0d1c8d" => :high_sierra
-    sha256 "8ac766961dcbb498caa01ca4a91a20dfadef0cba846ed82e02cc3da2f2bd41bc" => :sierra
-    sha256 "7a0fc81d08b6e574d12a3b0b4a1bd033cb63a698e8b2ad508de1b84db94ed005" => :el_capitan
+    rebuild 1
+    sha256 "072df8c5f3e00bf045f4e062993ecb08e324872daf3503b8f2bacef866a3de14" => :catalina
+    sha256 "7727321091982306464ad87e055074b2675d83ee3c8416cf6b0681a4db31bc85" => :mojave
+    sha256 "c8f820ca8dce64220c8c1e60002a13c4ed21d5decfd6b1189b6d286ca5c47ab4" => :high_sierra
   end
 
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
+  depends_on "libtool" => :build
   depends_on "gcc" # for gfortran
 
   def install
+    system "autoreconf", "-fiv"
     system "./configure", "--prefix=#{prefix}",
                           "--enable-shared",
                           "FCCPP=gfortran -E -x c",

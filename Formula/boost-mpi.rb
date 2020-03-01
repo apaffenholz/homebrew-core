@@ -1,31 +1,30 @@
 class BoostMpi < Formula
   desc "C++ library for C++/MPI interoperability"
   homepage "https://www.boost.org/"
-  url "https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2"
-  sha256 "2684c972994ee57fc5632e03bf044746f6eb45d4920c343937a465fd67a5adba"
+  url "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2"
+  sha256 "59c9b274bc451cf91a9ba1dd2c7fdcaf5d60b1b3aa83f2c9fa143417cc660722"
   head "https://github.com/boostorg/boost.git"
 
   bottle do
-    sha256 "d260e77cba427df4b1b296d94f06217cc6a412f98c04f4d82662edbb873fb951" => :high_sierra
-    sha256 "0672956e6f0656e610060554c2cc52a4312de6a2dbd44de7e3e4ce3674eb9948" => :sierra
-    sha256 "d3f89547cb9b48326d1ad72c699694b7f59453887425ce7aa51683da08080d4a" => :el_capitan
+    sha256 "85d4a3e20c2b6c3383a6fc6bb2829a08284bd23dfed1ddfe23c95b042ab6a73d" => :catalina
+    sha256 "76a3472fb7d69bd52c36f936d932dc70b800108c8ecedf1c11c132ce094af595" => :mojave
+    sha256 "9f6879e54a786105e9a2d4cc7275a31f22d4aea0f62417b8eed45e7f82d80449" => :high_sierra
   end
 
   depends_on "boost"
   depends_on "open-mpi"
 
-  needs :cxx11
-
   def install
     # "layout" should be synchronized with boost
-    args = ["--prefix=#{prefix}",
-            "--libdir=#{lib}",
-            "-d2",
-            "-j#{ENV.make_jobs}",
-            "--layout=tagged",
-            "--user-config=user-config.jam",
-            "threading=multi,single",
-            "link=shared,static"]
+    args = %W[
+      -d2
+      -j#{ENV.make_jobs}
+      --layout=tagged-1.66
+      --user-config=user-config.jam
+      install
+      threading=multi,single
+      link=shared,static
+    ]
 
     # Trunk starts using "clang++ -x c" to select C compiler which breaks C++11
     # handling using ENV.cxx11. Using "cxxflags" and "linkflags" still works.
@@ -41,9 +40,13 @@ class BoostMpi < Formula
 
     system "./bootstrap.sh", "--prefix=#{prefix}", "--libdir=#{lib}", "--with-libraries=mpi"
 
-    system "./b2", *args
+    system "./b2",
+           "--prefix=install-mpi",
+           "--libdir=install-mpi/lib",
+           *args
 
-    lib.install Dir["stage/lib/*mpi*"]
+    lib.install Dir["install-mpi/lib/*mpi*"]
+    (lib/"cmake").install Dir["install-mpi/lib/cmake/*mpi*"]
 
     # libboost_mpi links to libboost_serialization, which comes from the main boost formula
     boost = Formula["boost"]

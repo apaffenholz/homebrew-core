@@ -2,44 +2,27 @@ class Vim < Formula
   desc "Vi 'workalike' with many additional features"
   homepage "https://www.vim.org/"
   # vim should only be updated every 50 releases on multiples of 50
-  url "https://github.com/vim/vim/archive/v8.0.1800.tar.gz"
-  sha256 "388af19df5813db4f7fe524119699a62969299cb3f78314293c9e7058ca238fb"
+  url "https://github.com/vim/vim/archive/v8.2.0300.tar.gz"
+  sha256 "a295834060707d65b4756a2781062d3823ec48c6ecc0b8af7779d34a22ece1f9"
   head "https://github.com/vim/vim.git"
 
   bottle do
-    sha256 "def44d7f28a1d47fe0de0d2619ef2ff7c7586ada153ee0a0a0c602ab3af8912d" => :high_sierra
-    sha256 "f8a7a357d7b549d20d723350051fe996ba13d8fa857d036488ea96e00c303e06" => :sierra
-    sha256 "824cbee9ecd8810035d3a2cdd461b199d71c439467869b7898dfa6a0afd891ed" => :el_capitan
+    sha256 "0ab185d6ce98e80a18e1d9171c79977ef9106bcf030018532151b1c0e23d3fc0" => :catalina
+    sha256 "42b6809909e30c131dca41014465abb5fa3d450f1a22ad4b602c7a4850a85d4b" => :mojave
+    sha256 "c84533aeffc46febb5dd86ea09ed57f06b62cb86627e9358c94ad62484dfb1f0" => :high_sierra
   end
 
-  deprecated_option "override-system-vi" => "with-override-system-vi"
-
-  option "with-override-system-vi", "Override system vi"
-  option "with-gettext", "Build vim with National Language Support (translated messages, keymaps)"
-  option "with-client-server", "Enable client/server mode"
-
-  LANGUAGES_OPTIONAL = %w[lua python@2 tcl].freeze
-  LANGUAGES_DEFAULT  = %w[python].freeze
-
-  option "with-python@2", "Build vim with python@2 instead of python[3] support"
-  LANGUAGES_OPTIONAL.each do |language|
-    option "with-#{language}", "Build vim with #{language} support"
-  end
-  LANGUAGES_DEFAULT.each do |language|
-    option "without-#{language}", "Build vim without #{language} support"
-  end
-
+  depends_on "gettext"
+  depends_on "lua"
   depends_on "perl"
+  depends_on "python"
   depends_on "ruby"
-  depends_on "python" => :recommended if build.without? "python@2"
-  depends_on "gettext" => :optional
-  depends_on "lua" => :optional
-  depends_on "luajit" => :optional
-  depends_on "python@2" => :optional
-  depends_on :x11 if build.with? "client-server"
 
   conflicts_with "ex-vi",
     :because => "vim and ex-vi both install bin/ex and bin/view"
+
+  conflicts_with "macvim",
+    :because => "vim and macvim both install vi* binaries"
 
   def install
     ENV.prepend_path "PATH", Formula["python"].opt_libexec/"bin"
@@ -49,45 +32,6 @@ class Vim < Formula
 
     # vim doesn't require any Python package, unset PYTHONPATH.
     ENV.delete("PYTHONPATH")
-
-    opts = ["--enable-perlinterp", "--enable-rubyinterp"]
-
-    (LANGUAGES_OPTIONAL + LANGUAGES_DEFAULT).each do |language|
-      feature = { "python" => "python3", "python@2" => "python" }
-      if build.with? language
-        opts << "--enable-#{feature.fetch(language, language)}interp"
-      end
-    end
-
-    if opts.include?("--enable-pythoninterp") && opts.include?("--enable-python3interp")
-      # only compile with either python or python@2 support, but not both
-      # (if vim74 is compiled with +python3/dyn, the Python[3] library lookup segfaults
-      # in other words, a command like ":py3 import sys" leads to a SEGV)
-      opts -= %w[--enable-python3interp]
-    end
-
-    opts << "--disable-nls" if build.without? "gettext"
-    opts << "--enable-gui=no"
-
-    if build.with? "client-server"
-      opts << "--with-x"
-    else
-      opts << "--without-x"
-    end
-
-    if build.with?("lua") || build.with?("luajit")
-      ENV["LUA_PREFIX"] = HOMEBREW_PREFIX
-      opts << "--enable-luainterp"
-      opts << "--with-luajit" if build.with? "luajit"
-
-      if build.with?("lua") && build.with?("luajit")
-        onoe <<~EOS
-          Vim will not link against both Luajit & Lua simultaneously.
-          Proceeding with Lua.
-        EOS
-        opts -= %w[--with-luajit]
-      end
-    end
 
     # We specify HOMEBREW_PREFIX as the prefix to make vim look in the
     # the right place (HOMEBREW_PREFIX/share/vim/{vimrc,vimfiles}) for
@@ -102,7 +46,13 @@ class Vim < Formula
                           "--enable-cscope",
                           "--enable-terminal",
                           "--with-compiledby=Homebrew",
-                          *opts
+                          "--enable-perlinterp",
+                          "--enable-rubyinterp",
+                          "--enable-python3interp",
+                          "--enable-gui=no",
+                          "--without-x",
+                          "--enable-luainterp",
+                          "--with-lua-prefix=#{Formula["lua"].opt_prefix}"
     system "make"
     # Parallel install could miss some symlinks
     # https://github.com/vim/vim/issues/1031
@@ -111,27 +61,16 @@ class Vim < Formula
     # statically-linked interpreters like ruby
     # https://github.com/vim/vim/issues/114
     system "make", "install", "prefix=#{prefix}", "STRIP=#{which "true"}"
-    bin.install_symlink "vim" => "vi" if build.with? "override-system-vi"
+    bin.install_symlink "vim" => "vi"
   end
 
   test do
-    if build.with? "python@2"
-      (testpath/"commands.vim").write <<~EOS
-        :python import vim; vim.current.buffer[0] = 'hello world'
-        :wq
-      EOS
-      system bin/"vim", "-T", "dumb", "-s", "commands.vim", "test.txt"
-      assert_equal "hello world", File.read("test.txt").chomp
-    elsif build.with? "python"
-      (testpath/"commands.vim").write <<~EOS
-        :python3 import vim; vim.current.buffer[0] = 'hello python3'
-        :wq
-      EOS
-      system bin/"vim", "-T", "dumb", "-s", "commands.vim", "test.txt"
-      assert_equal "hello python3", File.read("test.txt").chomp
-    end
-    if build.with? "gettext"
-      assert_match "+gettext", shell_output("#{bin}/vim --version")
-    end
+    (testpath/"commands.vim").write <<~EOS
+      :python3 import vim; vim.current.buffer[0] = 'hello python3'
+      :wq
+    EOS
+    system bin/"vim", "-T", "dumb", "-s", "commands.vim", "test.txt"
+    assert_equal "hello python3", File.read("test.txt").chomp
+    assert_match "+gettext", shell_output("#{bin}/vim --version")
   end
 end

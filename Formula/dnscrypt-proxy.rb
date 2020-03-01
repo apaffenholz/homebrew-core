@@ -1,15 +1,15 @@
 class DnscryptProxy < Formula
   desc "Secure communications between a client and a DNS resolver"
-  homepage "https://github.com/jedisct1/dnscrypt-proxy"
-  url "https://github.com/jedisct1/dnscrypt-proxy/archive/2.0.11.tar.gz"
-  sha256 "3d1fddd6cc82cd7dfc9dfd6ad18137a5a03b7aa86ed025287d939b4fe4acf79c"
-  head "https://github.com/jedisct1/dnscrypt-proxy.git"
+  homepage "https://github.com/DNSCrypt/dnscrypt-proxy"
+  url "https://github.com/DNSCrypt/dnscrypt-proxy/archive/2.0.39.tar.gz"
+  sha256 "c943c74c0894bb51336529e733ca3811dffdb914a59b9707c63a327f2c8ff835"
+  head "https://github.com/DNSCrypt/dnscrypt-proxy.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "aa2b8bd7b3d0a848bd5549933d39168aa8aa879355063254455233296279b249" => :high_sierra
-    sha256 "ddc5a07f5354299149660a16329bd58d46d98ba28fcce8401cc36603069469a0" => :sierra
-    sha256 "17c76cb0371bdae9e5cf84b8c0cf6c6a9b358f10677691194719faf22b21fb51" => :el_capitan
+    sha256 "e86b19432fe18e7024cf7f27a0bbfb35463850e1670e03b05cf24a02be13b482" => :catalina
+    sha256 "0ef2d3a190e0792e37b1dfe29576f849deb2527a3cd801f52a8939b0f562cadc" => :mojave
+    sha256 "5a4c8b384bde18f818f268301592933f15e68bc6e37de2d509be30a748823d3a" => :high_sierra
   end
 
   depends_on "go" => :build
@@ -56,7 +56,7 @@ class DnscryptProxy < Formula
 
   def plist; <<~EOS
     <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-/Apple/DTD PLIST 1.0/EN" "http:/www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
       <dict>
         <key>Label</key>
@@ -79,12 +79,14 @@ class DnscryptProxy < Formula
         <string>/dev/null</string>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do
+    assert_match version.to_s, shell_output("#{sbin}/dnscrypt-proxy --version")
+
     config = "-config #{etc}/dnscrypt-proxy.toml"
     output = shell_output("#{sbin}/dnscrypt-proxy #{config} -list 2>&1")
-    assert_match "public-resolvers.md] loaded", output
+    assert_match "Source [public-resolvers] loaded", output
   end
 end

@@ -3,20 +3,24 @@ class YouGet < Formula
 
   desc "Dumb downloader that scrapes the web"
   homepage "https://you-get.org/"
-  url "https://github.com/soimort/you-get/releases/download/v0.4.1060/you-get-0.4.1060.tar.gz"
-  sha256 "a1cc8754ec877a2a200ab76ca37c5c506d762d535945fdbfdf3263388dcd8db0"
+  url "https://github.com/soimort/you-get/archive/v0.4.1403.tar.gz"
+  sha256 "1d5a46c273418ee971cb44a9e4b6060c1d9488b88692740c3ed6dc7669686c13"
   head "https://github.com/soimort/you-get.git", :branch => "develop"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "5d5dc094704864855e3e46646a59f97de9c74b3714ffd840499e702ef1dff840" => :high_sierra
-    sha256 "a281f41dd3a2c63c90c70ec5416dc0fa7fd5f73b064501abd45692601bbe6152" => :sierra
-    sha256 "c938ac9f5907548b4d953180066a30ad468b51fbfe10cc2e54b4cdd244d439aa" => :el_capitan
+    sha256 "69d504f3eca3f7b7892da9d8624d92a56b4f647a92141bf2dcb7bb11d4be490f" => :catalina
+    sha256 "7d7dec77b67db738da8a625c354834a4ee79bc097c1c7f9156cdef92550eca6b" => :mojave
+    sha256 "52642a70d4ed428938790e6c4df75f2020c4fdca6d5d34da2be074d951722056" => :high_sierra
   end
 
-  depends_on "python"
+  depends_on "python@3.8"
+  depends_on "rtmpdump"
 
-  depends_on "rtmpdump" => :optional
+  resource "PySocks" do
+    url "https://files.pythonhosted.org/packages/bd/11/293dd436aea955d45fc4e8a35b6ae7270f5b8e00b53cf6c024c83b657a11/PySocks-1.7.1.tar.gz"
+    sha256 "3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0"
+  end
 
   def install
     virtualenv_install_with_resources

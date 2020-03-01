@@ -1,18 +1,22 @@
 class Libzip < Formula
   desc "C library for reading, creating, and modifying zip archives"
   homepage "https://libzip.org/"
-  url "https://libzip.org/download/libzip-1.5.1.tar.gz"
-  sha256 "47eaa45faa448c72bd6906e5a096846c469a185f293cafd8456abb165841b3f2"
+  url "https://libzip.org/download/libzip-1.6.1.tar.xz"
+  sha256 "705dac7a671b3f440181481e607b0908129a9cf1ddfcba75d66436c0e7d33641"
 
   bottle do
-    sha256 "4ffb9ac04f1fc2c98e5ba902999ed6f4bc5d7d9133d22fc183fd8fa13b7fd9be" => :high_sierra
-    sha256 "a6d0dbd2370c97597948976414a48f544dc8a8e3e674e7faacef1bdc942d3161" => :sierra
-    sha256 "312f87c8f28237b69080b511d696ba72027e774655eacdd159159001c7941c0d" => :el_capitan
+    sha256 "d0d5f0722e0914fb33a8e1bc72b879577876a4b8ad554b93b50efc0e2436a591" => :catalina
+    sha256 "d3e6626651e816fc0f14800669cdd145f7e4a8e6f75f9a689b65d48a68ce4687" => :mojave
+    sha256 "2d973dfbb440bf9569f1b5f9c81d6de52c8a41ba2da64c5cfb1b1d5a408235c8" => :high_sierra
   end
 
   depends_on "cmake" => :build
 
-  conflicts_with "libtcod", :because => "both install `zip.h` header"
+  uses_from_macos "bzip2"
+  uses_from_macos "zlib"
+
+  conflicts_with "libtcod", "minizip2",
+    :because => "libtcod, libzip and minizip2 install a `zip.h` header"
 
   def install
     system "cmake", ".", *std_cmake_args

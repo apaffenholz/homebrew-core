@@ -1,17 +1,16 @@
 class Openexr < Formula
   desc "High dynamic-range image file format"
   homepage "https://www.openexr.com/"
-  url "https://savannah.nongnu.org/download/openexr/openexr-2.2.0.tar.gz"
-  sha256 "36a012f6c43213f840ce29a8b182700f6cf6b214bea0d5735594136b44914231"
-  revision 1
+  url "https://github.com/openexr/openexr/archive/v2.4.0.tar.gz"
+  sha256 "4904c5ea7914a58f60a5e2fbc397be67e7a25c380d7d07c1c31a3eefff1c92f1"
 
   bottle do
-    cellar :any
-    sha256 "6c96d4cae23adcf59f5a656ae922e919bf38b55cb69c1d66a7bb50d120a38a25" => :high_sierra
-    sha256 "d05f50377503a0b3a367e69ce463941487128c970cfb8f4db32cfb14c23a34f6" => :sierra
-    sha256 "f8d152a55c42645a8871906ff4d5d3f39fb8885cd02b6648ffabb3eef93e5beb" => :el_capitan
+    sha256 "8d0035149642480ce6f2cf7ef7e41505ceee657a39f57e3393c6c7a0faa29b2e" => :catalina
+    sha256 "f0503503f7f34a3dba50983fc284f920407b7c4a83de36326157cf7b6fcd8660" => :mojave
+    sha256 "f2c91954b76f5fd043195cae4ee117fe2d6e0563ebed99a7eefd82af5ea385a5" => :high_sierra
   end
 
+  depends_on "cmake" => :build
   depends_on "pkg-config" => :build
   depends_on "ilmbase"
 
@@ -20,18 +19,14 @@ class Openexr < Formula
     sha256 "eede573a0b59b79f21de15ee9d3b7649d58d8f2a8e7787ea34f192db3b3c84a4"
   end
 
-  # Fixes builds on 32-bit targets due to incorrect long literals
-  # Patches are already applied in the upstream git repo.
-  patch do
-    url "https://raw.githubusercontent.com/Homebrew/formula-patches/f1a3ea4f69b7a54d8123e2f16488864d52202de8/openexr/64bit_types.patch"
-    sha256 "c95374d8fdcc41ddc2f7c5b3c6f295a56dd5a6249bc26d0829548e70f5bd2dc9"
-  end
+  # from https://github.com/openexr/openexr/commit/0b26a9dedda4924841323677f1ce0bce37bfbeb4.patch
+  patch :DATA
 
   def install
-    system "./configure", "--disable-debug",
-                          "--disable-dependency-tracking",
-                          "--prefix=#{prefix}"
-    system "make", "install"
+    cd "OpenEXR" do
+      system "cmake", ".", *std_cmake_args
+      system "make", "install"
+    end
   end
 
   test do
@@ -40,3 +35,22 @@ class Openexr < Formula
     end
   end
 end
+
+__END__
+diff --git a/OpenEXR/config/CMakeLists.txt b/OpenEXR/config/CMakeLists.txt
+index 1ef829a2..8d6d7ac8 100644
+--- a/OpenEXR/config/CMakeLists.txt
++++ b/OpenEXR/config/CMakeLists.txt
+@@ -72,9 +72,9 @@ if(OPENEXR_INSTALL_PKG_CONFIG)
+   # use a helper function to avoid variable pollution, but pretty simple
+   function(openexr_pkg_config_help pcinfile)
+     set(prefix ${CMAKE_INSTALL_PREFIX})
+-    set(exec_prefix ${CMAKE_INSTALL_BINDIR})
+-    set(libdir ${CMAKE_INSTALL_LIBDIR})
+-    set(includedir ${CMAKE_INSTALL_INCLUDEDIR})
++    set(exec_prefix "\${prefix}")
++    set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
++    set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+     set(LIB_SUFFIX_DASH ${OPENEXR_LIB_SUFFIX})
+     if(TARGET Threads::Threads)
+       # hrm, can't use properties as they end up as generator expressions

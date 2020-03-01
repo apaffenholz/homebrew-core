@@ -3,22 +3,23 @@ require "language/node"
 class Chronograf < Formula
   desc "Open source monitoring and visualization UI for the TICK stack"
   homepage "https://docs.influxdata.com/chronograf/latest/"
-  url "https://github.com/influxdata/chronograf/archive/1.4.4.2.tar.gz"
-  sha256 "5bedf8f51eac859d762994d7c45fdfef45da5cd5b1d7f36e442f7eebde37c057"
+  url "https://github.com/influxdata/chronograf/archive/1.8.0.tar.gz"
+  sha256 "f1c6fa57a11e3ee11756c4a3b6e59845aede0f7e6191f41193b1f94a2453eb08"
   head "https://github.com/influxdata/chronograf.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "4257d4d89f1281177355a6997127fbf1aa1e7e123b499c31d5ebb23eacfc32e9" => :high_sierra
-    sha256 "fc226c0dce5e67a0521430e0b344543095649d88a11cb92ce75029c8dbd5bbde" => :sierra
-    sha256 "7acd40aa9c226996e0dd5186ab443bbb6a7a2abb281d1e07b67a8e286e0504f4" => :el_capitan
+    sha256 "836f37308ba8caf34aa8acc9190c9a6a1762bb8aee13c7c203c36744d70d2019" => :catalina
+    sha256 "ef17bb23eb3510cf38c15a35f1f2ea9d273af833d2f39cd48787f4ce7e958f56" => :mojave
+    sha256 "65aab11960c0c5176b1781be726d50adc06ee073ab821963778af522f8a73c5b" => :high_sierra
   end
 
   depends_on "go" => :build
+  depends_on "go-bindata" => :build
   depends_on "node" => :build
   depends_on "yarn" => :build
-  depends_on "influxdb" => :recommended
-  depends_on "kapacitor" => :recommended
+  depends_on "influxdb"
+  depends_on "kapacitor"
 
   def install
     ENV["GOPATH"] = buildpath
@@ -27,10 +28,10 @@ class Chronograf < Formula
     chronograf_path = buildpath/"src/github.com/influxdata/chronograf"
     chronograf_path.install buildpath.children
 
-    # fixes yarn + upath@1.0.4 incompatibility, remove once upath is upgraded to 1.0.5+
-    Pathname.new("#{ENV["HOME"]}/.yarnrc").write("ignore-engines true\n")
-
     cd chronograf_path do
+      cd "ui" do # fix node 12 compatibility
+        system "yarn", "upgrade", "parcel@1.11.0", "node-sass@4.12.0"
+      end
       system "make", "dep"
       system "make", ".jssrc"
       system "make", "chronograf"
@@ -67,21 +68,19 @@ class Chronograf < Formula
         <string>#{var}/log/chronograf.log</string>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do
-    begin
-      pid = fork do
-        exec "#{bin}/chronograf"
-      end
-      sleep 1
-      output = shell_output("curl -s 0.0.0.0:8888/chronograf/v1/")
-      sleep 1
-      assert_match %r{/chronograf/v1/layouts}, output
-    ensure
-      Process.kill("SIGINT", pid)
-      Process.wait(pid)
+    pid = fork do
+      exec "#{bin}/chronograf"
     end
+    sleep 10
+    output = shell_output("curl -s 0.0.0.0:8888/chronograf/v1/")
+    sleep 1
+    assert_match %r{/chronograf/v1/layouts}, output
+  ensure
+    Process.kill("SIGINT", pid)
+    Process.wait(pid)
   end
 end

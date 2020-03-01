@@ -3,17 +3,18 @@ class RstLint < Formula
 
   desc "ReStructuredText linter"
   homepage "https://github.com/twolfson/restructuredtext-lint"
-  url "https://github.com/twolfson/restructuredtext-lint/archive/1.1.3.tar.gz"
-  sha256 "eb75dda827c656a33be6e60f18b3943c4dd4252205e557ec95d1cf44df8e3a35"
+  url "https://github.com/twolfson/restructuredtext-lint/archive/1.3.0.tar.gz"
+  sha256 "4bf9d4724f59bc05ebe1cd5192c03d4597ee95c4bbf60bd5644422e1a2558da3"
+  revision 1
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "098a3b74c65c030729fad809210f1e31d96a2295610376989134be981f4fcc30" => :high_sierra
-    sha256 "d6edae2002e2df530bd14e8cb27eb6dce1a29fe15b5ec614d9c3b7610fe00d96" => :sierra
-    sha256 "aebb1a098a77f6e9477c5f426b363895d2f0cc77c46a3d84c871a9fab2f08d54" => :el_capitan
+    sha256 "5de2e78e3830b41f34e19e15d0a8d8c8922005e08f21be4c46778af5b0a65764" => :catalina
+    sha256 "fc083735d0449b72bc1934c1e06bf832e12b390e565ab2af82138442474394b6" => :mojave
+    sha256 "653b51d8d1b356ff314042c6f4d596abdfe0a703724ede6bd85df9e30eb97449" => :high_sierra
   end
 
-  depends_on "python@2"
+  depends_on "python@3.8"
 
   resource "docutils" do
     url "https://files.pythonhosted.org/packages/84/f4/5771e41fdf52aabebbadecc9381d11dea0fa34e4759b4071244fa094804c/docutils-0.14.tar.gz"

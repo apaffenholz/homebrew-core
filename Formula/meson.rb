@@ -1,19 +1,19 @@
 class Meson < Formula
   desc "Fast and user friendly build system"
   homepage "https://mesonbuild.com/"
-  url "https://github.com/mesonbuild/meson/releases/download/0.46.0/meson-0.46.0.tar.gz"
-  sha256 "b7df91b01a358a8facdbfa33596a47cda38a760435ab55e1985c0bff06a9cbf0"
+  url "https://github.com/mesonbuild/meson/releases/download/0.53.2/meson-0.53.2.tar.gz"
+  sha256 "3e8f830f33184397c2eb0b651ec502adb63decb28978bdc84b3558d71284c21f"
   head "https://github.com/mesonbuild/meson.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "090d95adb42b3119ca14e6528d203474d102ec93ea54d907f5574b0b1257713a" => :high_sierra
-    sha256 "090d95adb42b3119ca14e6528d203474d102ec93ea54d907f5574b0b1257713a" => :sierra
-    sha256 "090d95adb42b3119ca14e6528d203474d102ec93ea54d907f5574b0b1257713a" => :el_capitan
+    sha256 "b2855c6300305417e6b709f9f4a197b6b9905255d947dd8263b14443c18a64a6" => :catalina
+    sha256 "b2855c6300305417e6b709f9f4a197b6b9905255d947dd8263b14443c18a64a6" => :mojave
+    sha256 "b2855c6300305417e6b709f9f4a197b6b9905255d947dd8263b14443c18a64a6" => :high_sierra
   end
 
-  depends_on "python"
   depends_on "ninja"
+  depends_on "python"
 
   def install
     version = Language::Python.major_minor_version("python3")

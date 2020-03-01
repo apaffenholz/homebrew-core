@@ -1,7 +1,7 @@
 class Upscaledb < Formula
   desc "Database for embedded devices"
   homepage "https://upscaledb.com/"
-  revision 8
+  revision 14
 
   stable do
     url "http://files.upscaledb.com/dl/upscaledb-2.2.0.tar.gz"
@@ -18,38 +18,35 @@ class Upscaledb < Formula
 
   bottle do
     cellar :any
-    sha256 "5d2c04e98328b0dc12fce4f78f78d5cd378ce4ea7b1b026800a65333747f6136" => :high_sierra
-    sha256 "68ca2b096e3a9a6753eb524f0b60176f1477a835ae3bb85a35c35a3d84f5ec14" => :sierra
-    sha256 "46377ee2dbc85908cc65a3087c07fd0d750a1e940b514716fc536f00b983efea" => :el_capitan
+    sha256 "16803511bcf21348ddd6c71d76367fef5961188d2b0f467a3ec05b044db5b3f7" => :catalina
+    sha256 "b07269e80731ac5700a84b05f1725a49d59e40191bbab4661750b204f14ba9b3" => :mojave
+    sha256 "003ac2a786a136acf66f8de4a25a0d72950c21dbb4e4b70afad486bba01319d7" => :high_sierra
   end
 
   head do
     url "https://github.com/cruppstahl/upscaledb.git"
 
-    depends_on "automake" => :build
     depends_on "autoconf" => :build
+    depends_on "automake" => :build
     depends_on "libtool" => :build
   end
 
-  option "without-java", "Do not build the Java wrapper"
-  option "without-protobuf", "Disable access to remote databases"
-
-  deprecated_option "without-remote" => "without-protobuf"
-
   depends_on "boost"
   depends_on "gnutls"
-  depends_on "openssl"
-  depends_on :java => :recommended
-  depends_on "protobuf" => :recommended
+  depends_on "openjdk"
+  depends_on "openssl@1.1"
+  depends_on "protobuf"
 
   resource "libuv" do
     url "https://github.com/libuv/libuv/archive/v0.10.37.tar.gz"
     sha256 "4c12bed4936dc16a20117adfc5bc18889fa73be8b6b083993862628469a1e931"
   end
 
-  fails_with :clang do
-    build 503
-    cause "error: member access into incomplete type 'const std::type_info"
+  # Patch for compatibility with OpenSSL 1.1
+  # https://github.com/cruppstahl/upscaledb/issues/124
+  patch do
+    url "https://raw.githubusercontent.com/Homebrew/formula-patches/a7095c61/upscaledb/openssl-1.1.diff"
+    sha256 "c388613c88e856ee64be2b4a72b64a1b998f1f8b835122579e2049e9f01a0f58"
   end
 
   def install
@@ -61,33 +58,20 @@ class Upscaledb < Formula
 
     system "./bootstrap.sh" if build.head?
 
-    args = %W[
-      --disable-debug
-      --disable-dependency-tracking
-      --prefix=#{prefix}
-    ]
-
-    if build.with? "java"
-      args << "JDK=#{ENV["JAVA_HOME"]}"
-    else
-      args << "--disable-java"
+    resource("libuv").stage do
+      system "make", "libuv.dylib", "SO_LDFLAGS=-Wl,-install_name,#{libexec}/libuv/lib/libuv.dylib"
+      (libexec/"libuv/lib").install "libuv.dylib"
+      (libexec/"libuv").install "include"
     end
 
-    if build.with? "protobuf"
-      resource("libuv").stage do
-        system "make", "libuv.dylib", "SO_LDFLAGS=-Wl,-install_name,#{libexec}/libuv/lib/libuv.dylib"
-        (libexec/"libuv/lib").install "libuv.dylib"
-        (libexec/"libuv").install "include"
-      end
+    ENV.prepend "LDFLAGS", "-L#{libexec}/libuv/lib"
+    ENV.prepend "CFLAGS", "-I#{libexec}/libuv/include"
+    ENV.prepend "CPPFLAGS", "-I#{libexec}/libuv/include"
 
-      ENV.prepend "LDFLAGS", "-L#{libexec}/libuv/lib"
-      ENV.prepend "CFLAGS", "-I#{libexec}/libuv/include"
-      ENV.prepend "CPPFLAGS", "-I#{libexec}/libuv/include"
-    else
-      args << "--disable-remote"
-    end
-
-    system "./configure", *args
+    system "./configure", "--disable-debug",
+                          "--disable-dependency-tracking",
+                          "--prefix=#{prefix}",
+                          "JDK=#{Formula["openjdk"].opt_prefix}"
     system "make", "install"
 
     pkgshare.install "samples"

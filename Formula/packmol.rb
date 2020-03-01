@@ -1,15 +1,14 @@
 class Packmol < Formula
   desc "Packing optimization for molecular dynamics simulations"
   homepage "https://www.ime.unicamp.br/~martinez/packmol/"
-  url "https://github.com/leandromartinez98/packmol/archive/18.104.tar.gz"
-  sha256 "a87cb076f82a5ee94206b7534cd790c243fadd2d64bca5b12aa88493d5024f87"
-  revision 1
-  head "https://github.com/leandromartinez98/packmol.git"
+  url "https://github.com/mcubeg/packmol/archive/20.010.tar.gz"
+  sha256 "23285f2a9e2bef0e8253250d7eae2d4026a9535ddcc2b9b383f5ad45b19e123d"
+  head "https://github.com/mcubeg/packmol.git"
 
   bottle do
-    sha256 "d524677b620eb37e232a91d2b8dac99bb33e2fd286ed7abbf9b38ac5ffe61c8d" => :high_sierra
-    sha256 "d2d1320299846a5ca294619e6167ef26de456ce7219064b58c6fe93f3025d7ed" => :sierra
-    sha256 "c9328104bd3ff68e826a265adaff9b1977e2a21d619052d3089e5a08ae4b0b44" => :el_capitan
+    sha256 "30eaadfcb75cdfaeca7f10c9ae8b96c3f1a423420a1b1ee8e22bfa86a4f21d3d" => :catalina
+    sha256 "3c486c726d2e535fed629ab3db8c09424be37ec11f4f3e75883cb1e5ee315907" => :mojave
+    sha256 "2b9a34a4e1fa9cbc1d4b522b1d1cb591baf7e17d25fbb9ded02a636f95e982a3" => :high_sierra
   end
 
   depends_on "gcc" # for gfortran

@@ -1,21 +1,17 @@
 class OpencvAT2 < Formula
   desc "Open source computer vision library"
   homepage "https://opencv.org/"
-  url "https://github.com/opencv/opencv/archive/2.4.13.6.tar.gz"
-  sha256 "6ecbeea11f68356b748e35f758f4406067d3a2f6339e4582c63373fa6c3f5a72"
-  revision 2
+  url "https://github.com/opencv/opencv/archive/2.4.13.7.tar.gz"
+  sha256 "192d903588ae2cdceab3d7dc5a5636b023132c8369f184ca89ccec0312ae33d0"
+  revision 7
 
   bottle do
-    sha256 "15ee653e5cdc6bb5f0a65249860fe1007a6102612f27068b8613685b09f1ea6f" => :high_sierra
-    sha256 "b50bd28d7e579757d40596a6005722570bddcae31201058195acf1ca2c86bba0" => :sierra
-    sha256 "53c00a44de3f8df943479f448a4c5156b205a93fa6857456a3130d76a31918f1" => :el_capitan
+    sha256 "31719e8af1404aca919073f25576ff2dceb880aa0fc91d863f7a73ac0073f598" => :catalina
+    sha256 "b2b37e62a774c9ddbf4c20686daa27d4e61230366345e685b9be5ea7c99536a2" => :mojave
+    sha256 "5a3ab48231f3e591399d33f8cc9029dc9ebd8a49e4fcd9a02ce24de3b49aa70d" => :high_sierra
   end
 
   keg_only :versioned_formula
-
-  option "without-python@2", "Build without python2 support"
-
-  deprecated_option "without-python" => "without-python@2"
 
   depends_on "cmake" => :build
   depends_on "pkg-config" => :build
@@ -24,19 +20,12 @@ class OpencvAT2 < Formula
   depends_on "jpeg"
   depends_on "libpng"
   depends_on "libtiff"
+  depends_on "numpy@1.16"
   depends_on "openexr"
-  depends_on "python@2" => :recommended
-  depends_on "numpy" if build.with? "python@2"
-
-  # Remove for > 2.4.13.6
-  # Backport of https://github.com/opencv/opencv/pull/10011
-  # Upstream PR from 21 Apr 2018 "Fix build with FFmpeg 4.0"
-  patch do
-    url "https://github.com/opencv/opencv/commit/99091a62463.patch?full_index=1"
-    sha256 "7e33c5c009aea0798cd9bd3edb0f7a2122a9f3b2a962977e53a0fccd55e1db40"
-  end
+  uses_from_macos "python@2"
 
   def install
+    ENV.cxx11
     jpeg = Formula["jpeg"]
 
     args = std_cmake_args + %W[
@@ -50,6 +39,7 @@ class OpencvAT2 < Formula
       -DBUILD_TIFF=OFF
       -DBUILD_ZLIB=OFF
       -DBUILD_opencv_java=OFF
+      -DBUILD_opencv_python=ON
       -DWITH_CUDA=OFF
       -DWITH_EIGEN=ON
       -DWITH_FFMPEG=ON
@@ -60,26 +50,20 @@ class OpencvAT2 < Formula
       -DWITH_TBB=OFF
       -DJPEG_INCLUDE_DIR=#{jpeg.opt_include}
       -DJPEG_LIBRARY=#{jpeg.opt_lib}/libjpeg.dylib
+      -DENABLE_SSSE3=ON
     ]
 
-    args << "-DBUILD_opencv_python=" + (build.with?("python@2") ? "ON" : "OFF")
+    py_prefix = `python-config --prefix`.chomp
+    py_lib = "#{py_prefix}/lib"
+    args << "-DPYTHON_LIBRARY=#{py_lib}/libpython2.7.dylib"
+    args << "-DPYTHON_INCLUDE_DIR=#{py_prefix}/include/python2.7"
 
-    if build.with? "python@2"
-      py_prefix = `python-config --prefix`.chomp
-      py_lib = "#{py_prefix}/lib"
-      args << "-DPYTHON_LIBRARY=#{py_lib}/libpython2.7.dylib"
-      args << "-DPYTHON_INCLUDE_DIR=#{py_prefix}/include/python2.7"
+    # Make sure find_program locates system Python
+    # https://github.com/Homebrew/homebrew-science/issues/2302
+    args << "-DCMAKE_PREFIX_PATH=#{py_prefix}"
 
-      # Make sure find_program locates system Python
-      # https://github.com/Homebrew/homebrew-science/issues/2302
-      args << "-DCMAKE_PREFIX_PATH=#{py_prefix}"
-    end
-
-    if ENV.compiler == :clang && !build.bottle?
-      args << "-DENABLE_SSSE3=ON" if Hardware::CPU.ssse3?
-      args << "-DENABLE_SSE41=ON" if Hardware::CPU.sse4?
-      args << "-DENABLE_SSE42=ON" if Hardware::CPU.sse4_2?
-      args << "-DENABLE_AVX=ON" if Hardware::CPU.avx?
+    if MacOS.version.requires_sse42?
+      args << "-DENABLE_SSE41=ON" << "-DENABLE_SSE42=ON"
     end
 
     mkdir "build" do
@@ -102,7 +86,7 @@ class OpencvAT2 < Formula
     assert_equal version.to_s, shell_output("./test").strip
 
     ENV["PYTHONPATH"] = lib/"python2.7/site-packages"
-    assert_match version.to_s,
-                 shell_output("python2.7 -c 'import cv2; print(cv2.__version__)'")
+    output = shell_output("python2.7 -c 'import cv2; print(cv2.__version__)'")
+    assert_match version.to_s, output
   end
 end

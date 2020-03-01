@@ -1,23 +1,26 @@
 class Handbrake < Formula
   desc "Open-source video transcoder available for Linux, Mac, and Windows"
   homepage "https://handbrake.fr/"
-  url "https://download.handbrake.fr/releases/1.1.0/HandBrake-1.1.0-source.tar.bz2"
-  sha256 "a02e7c6f8bd8dc28eea4623663deb5971dcbca1ad59da9eb74aceb481d8c40da"
+  url "https://download.handbrake.fr/releases/1.3.1/HandBrake-1.3.1-source.tar.bz2"
+  sha256 "c005de993af4123babbb60f7d12f6ff46fb7eea26ff0a3556034683901ce2c27"
   head "https://github.com/HandBrake/HandBrake.git"
 
   bottle do
-    sha256 "66c8c4eff41eb5116fe8f868de296348e583975468155897a157153042d2a143" => :high_sierra
-    sha256 "9c927a8062dd2a2674ed809f44a65090bc7527227906967e04429769f17d6644" => :sierra
-    sha256 "cc8e3b2af4253294765ecab07bce0267674bf2ece7f749b97016af099d7f5269" => :el_capitan
+    cellar :any_skip_relocation
+    sha256 "65dbfb24905fbcc159e289f71a2027379770a919c6ae5e835686e3f40f9c16c6" => :catalina
+    sha256 "aaf4e5946dfec10f52705b207ec4cc817223b472f8642a477b42446e7ee3dae9" => :mojave
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "cmake" => :build
   depends_on "libtool" => :build
+  depends_on "meson" => :build
   depends_on "nasm" => :build
+  depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "python@2" => :build
+  depends_on "python" => :build
+  depends_on :xcode => ["10.3", :build]
   depends_on "yasm" => :build
 
   def install

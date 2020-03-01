@@ -2,32 +2,33 @@ class Pipenv < Formula
   include Language::Python::Virtualenv
 
   desc "Python dependency management tool"
-  homepage "https://docs.pipenv.org/"
-  url "https://files.pythonhosted.org/packages/fa/8b/2ffe65db172018ab0bdce8ef36b4dd8682b79d3be7e76cb43343958259ee/pipenv-11.10.3.tar.gz"
-  sha256 "72f1ad664019301fd2fdd5666498f730e0492b3278a6ff8657d846c4082b3efc"
+  homepage "https://pipenv.kennethreitz.org/"
+  url "https://files.pythonhosted.org/packages/fd/e9/01822318551caa0d62a181ba3b10f0f3757bb1e270da97165bd52db92776/pipenv-2018.11.26.tar.gz"
+  sha256 "a673e606e8452185e9817a987572b55360f4d28b50831ef3b42ac3cab3fee846"
+  revision 3
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "508727eed478dc20a6ec10582cb3996fb92d30b2c2e39a72d710cdc2df40fa1f" => :high_sierra
-    sha256 "5207d61d5c9ab36d5d5bb032316c912bf269e04cd63b2cfb0b63c6c2cedcc536" => :sierra
-    sha256 "126ffb0e7f07e33f0ed599eb8b04783e838b2c869c1962c691c4a7feacfc674b" => :el_capitan
+    sha256 "db8a0ff25976267cfe7abc95a5a4660dc2e30ee7b96c447019c7ac53e4303300" => :catalina
+    sha256 "b9cb743f74deb9a403e0c1a4cc9131658874035ae79c4a7462ad08a8f96bdad5" => :mojave
+    sha256 "0c078b19e35de1e9834049a8c1836285a5a85b483ce8ffa90263c138e71f6161" => :high_sierra
   end
 
-  depends_on "python"
+  depends_on "python@3.8"
 
   resource "certifi" do
-    url "https://files.pythonhosted.org/packages/4d/9c/46e950a6f4d6b4be571ddcae21e7bc846fcbb88f1de3eff0f6dd0a6be55d/certifi-2018.4.16.tar.gz"
-    sha256 "13e698f54293db9f89122b0581843a782ad0934a4fe0172d2a980ba77fc61bb7"
+    url "https://files.pythonhosted.org/packages/41/bf/9d214a5af07debc6acf7f3f257265618f1db242a3f8e49a9b516f24523a6/certifi-2019.11.28.tar.gz"
+    sha256 "25b64c7da4cd7479594d035c08c2d809eb4aab3a26e5a990ea98cc450c320f1f"
   end
 
   resource "virtualenv" do
-    url "https://files.pythonhosted.org/packages/b1/72/2d70c5a1de409ceb3a27ff2ec007ecdd5cc52239e7c74990e32af57affe9/virtualenv-15.2.0.tar.gz"
-    sha256 "1d7e241b431e7afce47e77f8843a276f652699d1fa4f93b9d8ce0076fd7b0b54"
+    url "https://files.pythonhosted.org/packages/aa/3b/213c384c65e17995cccd0f2bb993b7b82c41f62e74c2f8f39c8e60549d86/virtualenv-16.7.9.tar.gz"
+    sha256 "0d62c70883c0342d59c11d0ddac0d954d0431321a41ab20851facf2b222598f3"
   end
 
   resource "virtualenv-clone" do
-    url "https://files.pythonhosted.org/packages/14/2f/84b6a8e380439cdfdb71e0ced2a805a66e343ac540d3304bde6bc28fbb46/virtualenv-clone-0.3.0.tar.gz"
-    sha256 "b5cfe535d14dc68dfc1d1bb4ac1209ea28235b91156e2bba8e250d291c3fb4f8"
+    url "https://files.pythonhosted.org/packages/d7/a7/08b88808c409722361459f1ae24474530d83593d6ded346f1d3649326838/virtualenv-clone-0.5.3.tar.gz"
+    sha256 "c88ae171a11b087ea2513f260cdac9232461d8e9369bcd1dc143fc399d220557"
   end
 
   def install
@@ -38,18 +39,20 @@ class Pipenv < Formula
     venv.pip_install resources
     venv.pip_install buildpath
 
-    # `pipenv` needs to be able to find `virtualenv` and `pewtwo` on PATH. So we
+    # `pipenv` needs to be able to find `virtualenv` on PATH. So we
     # install symlinks for those scripts in `#{libexec}/tools` and create a
     # wrapper script for `pipenv` which adds `#{libexec}/tools` to PATH.
-    (libexec/"tools").install_symlink libexec/"bin/pewtwo", libexec/"bin/pip",
-                                      libexec/"bin/virtualenv"
+    (libexec/"tools").install_symlink libexec/"bin/pip", libexec/"bin/virtualenv"
     env = {
       :PATH => "#{libexec}/tools:$PATH",
     }
     (bin/"pipenv").write_env_script(libexec/"bin/pipenv", env)
 
-    output = Utils.popen_read("#{libexec}/bin/pipenv --completion")
+    output = Utils.popen_read("SHELL=bash #{libexec}/bin/pipenv --completion")
     (bash_completion/"pipenv").write output
+
+    output = Utils.popen_read("SHELL=zsh #{libexec}/bin/pipenv --completion")
+    (zsh_completion/"_pipenv").write output
   end
 
   # Avoid relative paths
@@ -57,12 +60,11 @@ class Pipenv < Formula
     lib_python_path = Pathname.glob(libexec/"lib/python*").first
     lib_python_path.each_child do |f|
       next unless f.symlink?
+
       realpath = f.realpath
       rm f
       ln_s realpath, f
     end
-    inreplace lib_python_path/"orig-prefix.txt",
-              Formula["python"].opt_prefix, Formula["python"].prefix.realpath
   end
 
   test do

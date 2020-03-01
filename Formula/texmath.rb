@@ -5,18 +5,18 @@ class Texmath < Formula
 
   desc "Haskell library for converting LaTeX math to MathML"
   homepage "https://johnmacfarlane.net/texmath.html"
-  url "https://hackage.haskell.org/package/texmath-0.10.1.2/texmath-0.10.1.2.tar.gz"
-  sha256 "fda230b0ce48efb1f45f14c47d3db255466b973f42699507d53f8a7ca8a5d821"
+  url "https://hackage.haskell.org/package/texmath-0.12/texmath-0.12.tar.gz"
+  sha256 "5e1915a87774428733575cd47ce1f4050a70ab30c8518238e320036e877a8125"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "989b22c79bfda29a7a477e5f6348b605db9e2dbaf5abdd09b8d3c6ef6a7427e6" => :high_sierra
-    sha256 "5b3065e5e4ce285ec4ad84ca69f897774451d63ed930c3c43626bb606cd1ef26" => :sierra
-    sha256 "a79acdbf08387619c9a20b8367b2fc42618e99ba5feac401e77c4ab154c7f049" => :el_capitan
+    sha256 "03203284dd76815b6ab59b24ae4730db26ca4ad37cceb09b6d8b92b598bfd1eb" => :catalina
+    sha256 "eb7534eeb2e36f93cc7262e446e908918b87a0aeedac653a7d32212a964462b2" => :mojave
+    sha256 "f2054064d399c56953d8cadedf9a23d77d251c5229279bbec929816acbfd6cc2" => :high_sierra
   end
 
-  depends_on "ghc" => :build
   depends_on "cabal-install" => :build
+  depends_on "ghc" => :build
 
   def install
     install_cabal_package "--enable-tests", :flags => ["executable"] do

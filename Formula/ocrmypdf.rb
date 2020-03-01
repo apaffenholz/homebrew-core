@@ -3,70 +3,94 @@ class Ocrmypdf < Formula
 
   desc "Adds an OCR text layer to scanned PDF files"
   homepage "https://github.com/jbarlow83/OCRmyPDF"
-  url "https://files.pythonhosted.org/packages/c9/1a/99115c743245066e6ea8004c68a0c0356ba443fe4ea8e9cfcf9b28192efb/ocrmypdf-6.2.0.tar.gz"
-  sha256 "d0f0134b515fb6c7a8881c9ca930dfe59ac81ee5577c441e9e7ff787958b5d01"
+  url "https://files.pythonhosted.org/packages/a9/4f/6fdbdadc554b28e75998eda555c5a0ea084da4668567302bde6736e63dbf/ocrmypdf-9.6.0.tar.gz"
+  sha256 "5a8f5c95a67bd3c14f7fab657f1a88c3b46e9f7ce5b5aef15eb1b4b7f5ff0075"
 
   bottle do
     cellar :any
-    sha256 "84faba8710e13ddd796d095def59db69eae08625642d7df6e9a1cae4601b88a7" => :high_sierra
-    sha256 "6b6d8f464280df1fa1982770d90db69db78e7c65e61b2398a109501cd4b9458e" => :sierra
-    sha256 "20dbcf755f670576a44cff05c24f152bd9f7eb20509ebaec09e072de39b4b98b" => :el_capitan
+    sha256 "859a556c7da066483117fbb3c050c8351a68a6964082b5c48017bd8ebdecfff7" => :catalina
+    sha256 "4ad61dc80a54e75b52add739dad9a17d1d516a0672960512f228ab1fc0ec9752" => :mojave
+    sha256 "4963b2638dee47ef39b587276db33c061a3b542d49f1d42f2e7fb26398c0b247" => :high_sierra
   end
 
-  depends_on "mupdf-tools" => :build # PyMuPDF statically links to libmupdf.a
   depends_on "pkg-config" => :build
   depends_on "freetype"
   depends_on "ghostscript"
+  depends_on "jbig2enc"
   depends_on "jpeg"
+  depends_on "leptonica"
   depends_on "libpng"
+  depends_on "libxml2"
+  depends_on "pngquant"
+  depends_on "pybind11"
   depends_on "python"
   depends_on "qpdf"
   depends_on "tesseract"
   depends_on "unpaper"
 
+  uses_from_macos "libffi"
+  uses_from_macos "libxml2"
+  uses_from_macos "libxslt"
+  uses_from_macos "zlib"
+
   resource "cffi" do
-    url "https://files.pythonhosted.org/packages/e7/a7/4cd50e57cc6f436f1cc3a7e8fa700ff9b8b4d471620629074913e3735fb2/cffi-1.11.5.tar.gz"
-    sha256 "e90f17980e6ab0f3c2f3730e56d1fe9bcba1891eeea58966e89d352492cc74f4"
+    url "https://files.pythonhosted.org/packages/05/54/3324b0c46340c31b909fcec598696aaec7ddc8c18a63f2db352562d3354c/cffi-1.14.0.tar.gz"
+    sha256 "2d384f4a127a15ba701207f7639d94106693b6cd64173d6c8988e2c25f3ac2b6"
   end
 
-  resource "defusedxml" do
-    url "https://files.pythonhosted.org/packages/74/ba/4ba4e89e21b5a2e267d80736ea674609a0a33cc4435a6d748ef04f1f9374/defusedxml-0.5.0.tar.gz"
-    sha256 "24d7f2f94f7f3cb6061acb215685e5125fbcdc40a857eff9de22518820b0a4f4"
+  resource "chardet" do
+    url "https://files.pythonhosted.org/packages/fc/bb/a5768c230f9ddb03acc9ef3f0d4a3cf93462473795d18e9535498c8f929d/chardet-3.0.4.tar.gz"
+    sha256 "84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"
   end
 
   resource "img2pdf" do
-    url "https://files.pythonhosted.org/packages/7e/a2/4f06081f674920be757d894b4bab874e6a3b5227e730cb7618430b366e69/img2pdf-0.2.4.tar.gz"
-    sha256 "140b70fa3a3bfb54e92947818cee01483a4f1492b5d1d02b0f649257f5ffc9ae"
+    url "https://files.pythonhosted.org/packages/e0/c6/7cd14232a1b10bf884c12daf3626afb76c4f60b52ae0eb23ce1519542ae4/img2pdf-0.3.3.tar.gz"
+    sha256 "9d77c17ee65a736abe92ef8cba9cca009c064ea4ed74492c01aea596e41856cf"
+  end
+
+  resource "lxml" do
+    url "https://files.pythonhosted.org/packages/39/2b/0a66d5436f237aff76b91e68b4d8c041d145ad0a2cdeefe2c42f76ba2857/lxml-4.5.0.tar.gz"
+    sha256 "8620ce80f50d023d414183bf90cc2576c2837b88e00bea3f33ad2630133bbb60"
+  end
+
+  resource "pdfminer.six" do
+    url "https://files.pythonhosted.org/packages/9f/c0/4a106c354cff69c6946aab857766616e72208d7cce0ad3e78aa356c6d34c/pdfminer.six-20200124.tar.gz"
+    sha256 "9f34f8f61cd72ae23ef572e0ea1c93cd2b1e4a6d1137d14ed23763b5b2094e13"
+  end
+
+  resource "pikepdf" do
+    url "https://files.pythonhosted.org/packages/42/15/0339718f4c732246529c2fe1cc70205f89dd8995c29c867908e8353b6b65/pikepdf-1.10.1.tar.gz"
+    sha256 "3777f482fb24e6665e8ac09a8a9beb70380c3b0fb5a890d7aa90dca679a793f4"
   end
 
   resource "Pillow" do
-    url "https://files.pythonhosted.org/packages/0f/57/25be1a4c2d487942c3ed360f6eee7f41c5b9196a09ca71c54d1a33c968d9/Pillow-5.0.0.tar.gz"
-    sha256 "12f29d6c23424f704c66b5b68c02fe0b571504459605cfe36ab8158359b0e1bb"
+    url "https://files.pythonhosted.org/packages/39/47/f28067b187dd664d205f75b07dcc6e0e95703e134008a14814827eebcaab/Pillow-7.0.0.tar.gz"
+    sha256 "4d9ed9a64095e031435af120d3c910148067087541131e82b3e8db302f4c8946"
   end
 
   resource "pycparser" do
-    url "https://files.pythonhosted.org/packages/8c/2d/aad7f16146f4197a11f8e91fb81df177adcc2073d36a17b1491fd09df6ed/pycparser-2.18.tar.gz"
-    sha256 "99a8ca03e29851d96616ad0404b4aad7d9ee16f25c9f9708a11faf2810f7b226"
+    url "https://files.pythonhosted.org/packages/68/9e/49196946aee219aead1290e00d1e7fdeab8567783e83e1b9ab5585e6206a/pycparser-2.19.tar.gz"
+    sha256 "a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3"
   end
 
-  resource "PyMuPDF" do
-    url "https://files.pythonhosted.org/packages/04/d4/aa5b79592c59fcf9f1837fa92d7d3b171f98abc8cf144b359e4b3a22eae1/PyMuPDF-1.12.5.tar.gz"
-    sha256 "8eece1ce5922b310264dd235c4b457dfd2c3e4c5893130165d5f5168561050f2"
-  end
-
-  resource "PyPDF2" do
-    url "https://files.pythonhosted.org/packages/b4/01/68fcc0d43daf4c6bdbc6b33cc3f77bda531c86b174cac56ef0ffdb96faab/PyPDF2-1.26.0.tar.gz"
-    sha256 "e28f902f2f0a1603ea95ebe21dff311ef09be3d0f0ef29a3e44a932729564385"
+  resource "pycryptodome" do
+    url "https://files.pythonhosted.org/packages/37/84/5bb86e0a4cda99669ccf0814942889499dc11e3124fd4cc2f4faa447e966/pycryptodome-3.9.6.tar.gz"
+    sha256 "bc22ced26ebc46546798fa0141f4418f1db116dec517f0aeaecec87cf7b2416c"
   end
 
   resource "reportlab" do
-    url "https://files.pythonhosted.org/packages/87/f9/53b34c58d3735a6df7d5c542bf4de60d699cfa6035e113ca08b3ecdcca3f/reportlab-3.4.0.tar.gz"
-    sha256 "5beaf35e59dfd5ebd814fdefd76908292e818c982bd7332b5d347dfd2f01c343"
+    url "https://files.pythonhosted.org/packages/0f/0b/bce8f4a6641c30889fd82b50665f0f7521d633bfd3360af2c11b8b2200af/reportlab-3.5.34.tar.gz"
+    sha256 "9675a26d01ec141cb717091bb139b6227bfb3794f521943101da50327bff4825"
   end
 
-  resource "ruffus" do
-    url "https://files.pythonhosted.org/packages/97/fe/12445c6793350ab5dbf76cb87a122b9e9aab9a9040a2801004806d985216/ruffus-2.6.3.tar.gz"
-    sha256 "d78728d802013d91d15e5e939554dabce196967734850fa44634dce47e3e5061"
+  resource "sortedcontainers" do
+    url "https://files.pythonhosted.org/packages/29/e0/135df2e733790a3d3bcda970fd080617be8cea3bd98f411e76e6847c17ef/sortedcontainers-2.1.0.tar.gz"
+    sha256 "974e9a32f56b17c1bac2aebd9dcf197f3eb9cd30553c5852a3187ad162e1a03a"
+  end
+
+  resource "tqdm" do
+    url "https://files.pythonhosted.org/packages/c3/31/e6505e9ed53fbffc82c72b8f598f3f883f27f3a186855097a75149b9c62f/tqdm-4.42.0.tar.gz"
+    sha256 "5865f5fef9d739864ff341ddaa69894173ebacedb1aaafcf014de56343d01d5c"
   end
 
   def install
@@ -74,7 +98,7 @@ class Ocrmypdf < Formula
 
     resource("Pillow").stage do
       inreplace "setup.py" do |s|
-        sdkprefix = MacOS::CLT.installed? ? "" : MacOS.sdk_path
+        sdkprefix = MacOS.sdk_path_if_needed ? MacOS.sdk_path : ""
         s.gsub! "openjpeg.h", "probably_not_a_header_called_this_eh.h"
         s.gsub! "ZLIB_ROOT = None", "ZLIB_ROOT = ('#{sdkprefix}/usr/lib', '#{sdkprefix}/usr/include')"
         s.gsub! "JPEG_ROOT = None", "JPEG_ROOT = ('#{Formula["jpeg"].opt_prefix}/lib', '#{Formula["jpeg"].opt_prefix}/include')"
@@ -86,19 +110,20 @@ class Ocrmypdf < Formula
       venv.pip_install Pathname.pwd
     end
 
-    res = resources.map(&:name).to_set - ["Pillow"]
+    # Fix "ld: file not found: /usr/lib/system/libsystem_darwin.dylib" for lxml
+    ENV["SDKROOT"] = MacOS.sdk_path if MacOS.version == :sierra
 
+    res = resources.map(&:name).to_set - ["Pillow"]
     res.each do |r|
       venv.pip_install resource(r)
     end
 
     venv.pip_install_and_link buildpath
+    bash_completion.install "misc/completion/ocrmypdf.bash" => "ocrmypdf"
+    fish_completion.install "misc/completion/ocrmypdf.fish"
   end
 
   test do
-    # Since we use Python 3, we require a UTF-8 locale
-    ENV["LC_ALL"] = "en_US.UTF-8"
-
     system "#{bin}/ocrmypdf", "-f", "-q", "--deskew",
                               test_fixtures("test.pdf"), "ocr.pdf"
     assert_predicate testpath/"ocr.pdf", :exist?

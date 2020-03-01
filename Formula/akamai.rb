@@ -1,14 +1,14 @@
 class Akamai < Formula
   desc "CLI toolkit for working with Akamai's APIs"
   homepage "https://github.com/akamai/cli"
-  url "https://github.com/akamai/cli/archive/1.0.2.tar.gz"
-  sha256 "d3855ddbaf11cac3f0f164937faa1153ea9d1ab41175989311eab674d9b4a635"
+  url "https://github.com/akamai/cli/archive/1.1.5.tar.gz"
+  sha256 "759c3c3bc59c2623fc8a5f91907f55d870f77aef1839f2ecc703db5c469b852a"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "a79032313a80d5d55b35bd6ec057f1b990f613da3dbfc278e631168365776176" => :high_sierra
-    sha256 "31ea9f63acbca72f594346256122d4898b2ce65b1ca53a0785b00bef62700628" => :sierra
-    sha256 "a383a729459136fab43a0ce6e1f822fecb22bcb351e7fec32eee9ac6810c7363" => :el_capitan
+    sha256 "a986f3bfc261227cd44447d5ff9cdfb461c50c002118d36caed068f5859432e1" => :catalina
+    sha256 "ce3ea6b8dba89d48bfec3be3bbf5701e7b1dcdde7a2f76a97dd668752b1e95fb" => :mojave
+    sha256 "2b6d07c4926858e1be33bef070a925a6746f396fa27566aaa313d5a2673cb25f" => :high_sierra
   end
 
   depends_on "dep" => :build
@@ -22,7 +22,7 @@ class Akamai < Formula
     srcpath.install buildpath.children
 
     cd srcpath do
-      system "dep", "ensure"
+      system "dep", "ensure", "-vendor-only"
       system "go", "build", "-tags", "noautoupgrade nofirstrun", "-o", bin/"akamai"
       prefix.install_metafiles
     end

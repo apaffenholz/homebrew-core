@@ -3,19 +3,19 @@ class Proselint < Formula
 
   desc "Linter for prose"
   homepage "http://proselint.com"
-  url "https://files.pythonhosted.org/packages/1b/d2/2e6afa3f933a12bfb1eb588f1ec8c26f915935356d8a0e51b2e5c53bfd04/proselint-0.8.0.tar.gz"
-  sha256 "08d48494533f178eb7a978cbdf10ddf85ed7fc2eb486ff5e7d0aecfa08e81bbd"
+  url "https://files.pythonhosted.org/packages/42/ff/8e7ad0108b8faffdf2ec7d170b4a8a3c9bc91f5077debf5381ef14702588/proselint-0.10.2.tar.gz"
+  sha256 "3a87eb393056d1bc77d898e4bcf8998f50e9ad84f7b9ff7cf2720509ac8ef904"
+  revision 2
   head "https://github.com/amperser/proselint.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "348b9735cf0f74e60458401ea04443e1bdee7b16425bbab7dc4dcc22a3b4afe2" => :high_sierra
-    sha256 "2b21bf831fb77fb70d54f7df0ec4d17828b6b3dd34fd8067f5e4c0907936f510" => :sierra
-    sha256 "1a519abf70fb0ff474a9cb7f1f26cc47ab14db96e0bff2234dde0cf8a21a4162" => :el_capitan
-    sha256 "3251f7ab8536ce8ce27973ae7b3578a404b712688dfa79c4f7d2413d1760ae32" => :yosemite
+    sha256 "934c3ea516ed2186a6154d86a44df7114fda4d0f44ba4812ed5de1e94ed8fb40" => :catalina
+    sha256 "db7413fb635e0af1e1d89a734ea74a44c313c8aed7a6ecad84ee533c17d3d276" => :mojave
+    sha256 "c1269a4a9d18ca7f66bcea841cb482afa7fec49188dfaaa388085da9a915e0f2" => :high_sierra
   end
 
-  depends_on "python@2"
+  depends_on "python@3.8"
 
   resource "click" do
     url "https://files.pythonhosted.org/packages/95/d9/c3336b6b5711c3ab9d1d3a80f1a3e2afeb9d8c02a7166462f6cc96570897/click-6.7.tar.gz"
@@ -28,8 +28,8 @@ class Proselint < Formula
   end
 
   resource "six" do
-    url "https://files.pythonhosted.org/packages/b3/b2/238e2590826bfdd113244a40d9d3eb26918bd798fc187e2360a8367068db/six-1.10.0.tar.gz"
-    sha256 "105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a"
+    url "https://files.pythonhosted.org/packages/16/d8/bc6316cf98419719bd59c91742194c111b6f2e85abac88e496adefaf7afe/six-1.11.0.tar.gz"
+    sha256 "70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9"
   end
 
   def install
@@ -38,6 +38,6 @@ class Proselint < Formula
 
   test do
     output = pipe_output("#{bin}/proselint --compact -", "John is very unique.")
-    assert_match /weasel_words\.very.*uncomparables/m, output
+    assert_match "Comparison of an uncomparable", output
   end
 end

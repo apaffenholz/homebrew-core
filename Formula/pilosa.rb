@@ -1,26 +1,25 @@
 class Pilosa < Formula
   desc "Distributed bitmap index that queries across data sets"
   homepage "https://www.pilosa.com"
-  url "https://github.com/pilosa/pilosa/archive/v0.9.0.tar.gz"
-  sha256 "e018db6d6170b1f3f262feae2f34b1e4e088da9c4bca85530e592c25061366dc"
+  url "https://github.com/pilosa/pilosa/archive/v1.4.0.tar.gz"
+  sha256 "9b6524049e4e927179a5a1122129e68c66712752a12ebd3dedf9010188ae73a5"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "67352b8c8c5c4458dc68628d80dd5f67ba9003df6a56f3ec30f938f59b4435d3" => :high_sierra
-    sha256 "591ceafd19983c2a52a32cc9d59064ab14f8bde411c75f8d1d42988d36f23390" => :sierra
-    sha256 "8ac8de074a45b76f155beec35f9a0fee2320fbbee780bcfe377d44c3de29a869" => :el_capitan
+    sha256 "1480f6130114fb66f695ea0c0a64b1f882339d057b6e40c6c50f996249a5190f" => :catalina
+    sha256 "b07bcd3693cdc789a45fdce1b3257b3ca85b018eb65f1cbb45234d41ff935902" => :mojave
+    sha256 "245160b3bc6e7e6a4b27d3081580c0616e8004ea1b9420367801c2193417caea" => :high_sierra
+    sha256 "6b9489e424aca469bafc5e7c7ec20470009c713ce1a843efc7ee6b884fb216da" => :sierra
   end
 
-  depends_on "dep" => :build
   depends_on "go" => :build
-  depends_on "go-statik" => :build
 
   def install
     ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/pilosa/pilosa").install buildpath.children
 
+    (buildpath/"src/github.com/pilosa/pilosa").install buildpath.children
     cd "src/github.com/pilosa/pilosa" do
-      system "make", "generate-statik", "build", "FLAGS=-o #{bin}/pilosa", "VERSION=v#{version}"
+      system "make", "build", "FLAGS=-o #{bin}/pilosa", "VERSION=v#{version}"
       prefix.install_metafiles
     end
   end
@@ -50,20 +49,17 @@ class Pilosa < Formula
         <string>#{var}</string>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do
-    begin
-      server = fork do
-        exec "#{bin}/pilosa", "server"
-      end
-      sleep 0.5
-      assert_match("Welcome. Pilosa is running.", shell_output("curl localhost:10101"))
-      assert_match("<!DOCTYPE html>", shell_output("curl --user-agent NotCurl localhost:10101"))
-    ensure
-      Process.kill "TERM", server
-      Process.wait server
+    server = fork do
+      exec "#{bin}/pilosa", "server"
     end
+    sleep 0.5
+    assert_match("Welcome. Pilosa is running.", shell_output("curl localhost:10101"))
+  ensure
+    Process.kill "TERM", server
+    Process.wait server
   end
 end

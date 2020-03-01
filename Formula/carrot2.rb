@@ -1,17 +1,17 @@
 class Carrot2 < Formula
   desc "Search results clustering engine"
   homepage "https://project.carrot2.org"
-  url "https://github.com/carrot2/carrot2/releases/download/release%2F3.15.1/carrot2-dcs-3.15.1.zip"
-  sha256 "8aedcc83fc9303a978c722f66739e85ab197034f1617c7c4e2b831fb88d43c25"
+  url "https://github.com/carrot2/carrot2/releases/download/release%2F3.16.3/carrot2-dcs-3.16.3.zip"
+  sha256 "653221f8d11a5712f6889555110ffb4b8eab9ba1ac042cb35a5a16f4531e5ee1"
 
   bottle :unneeded
 
-  depends_on :java => "1.8+"
+  depends_on "openjdk"
 
   def install
     libexec.install Dir["*"]
     bin.install libexec/"dcs.sh" => "carrot2"
-    inreplace bin/"carrot2", "java", "cd #{libexec} && exec java"
+    inreplace bin/"carrot2", "java", "cd #{libexec} && exec '#{Formula["openjdk"].opt_bin}/java'"
   end
 
   plist_options :manual => "carrot2"
@@ -36,7 +36,7 @@ class Carrot2 < Formula
         </array>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do

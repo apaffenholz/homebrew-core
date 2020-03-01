@@ -1,15 +1,15 @@
 class Libebml < Formula
   desc "Sort of a sbinary version of XML"
   homepage "https://www.matroska.org/"
-  url "https://dl.matroska.org/downloads/libebml/libebml-1.3.6.tar.xz"
-  sha256 "1e5a7a7820c493aa62b0f35e15b4233c792cc03458c55ebdfa7a6521e4b43e9e"
+  url "https://dl.matroska.org/downloads/libebml/libebml-1.3.10.tar.xz"
+  sha256 "c6a792f4127b8059bc446fb32391e6633811f45748d7d7ba873d7028362f5e3e"
   head "https://github.com/Matroska-Org/libebml.git"
 
   bottle do
     cellar :any
-    sha256 "a01d2e280ab7a8d66fb011d76a561418efcc405b77bfbb6aa7c4ed8cdf50d801" => :high_sierra
-    sha256 "42290383556da8468940edb695037091cc85e96883a3e41e9751e2f28033868a" => :sierra
-    sha256 "9783de8ef94b13ed3660eb99a821e221ae1f72d0e52397c1bf96e408d2d0654f" => :el_capitan
+    sha256 "ab827d4f47936ff0ac3333ca38843a5171b8bd0211ac4c1f81f7a1ba6c4d3a6c" => :catalina
+    sha256 "c6b199ff5aa3980d1a296f2e3d2ec50149f3ffcca2748ecd4a31e62b470e50c3" => :mojave
+    sha256 "01cec2d9346a4e154d5d92327756212527b5e3b4980882b916ca05bc0aad41d7" => :high_sierra
   end
 
   depends_on "cmake" => :build

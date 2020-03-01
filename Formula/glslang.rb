@@ -1,21 +1,26 @@
 class Glslang < Formula
   desc "OpenGL and OpenGL ES reference compiler for shading languages"
   homepage "https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/"
-  url "https://github.com/KhronosGroup/glslang/archive/6.2.2596.tar.gz"
-  sha256 "fce7ec22e66043fb59e4a3c369445ea8c57f2631a04b6a0015f19a7bc954567e"
+  url "https://github.com/KhronosGroup/glslang/archive/8.13.3559.tar.gz"
+  sha256 "c58fdcf7e00943ba10f9ae565b2725ec9d5be7dab7c8e82cac72fcaa83c652ca"
   head "https://github.com/KhronosGroup/glslang.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "6c630e225baf6a7db411b206dd1de58fb8c71e58cd77ba399245fad3f451db76" => :high_sierra
-    sha256 "75d77271b5ad6ddbbe7579173eef4af2960610179897783bab4b9cb59573b56d" => :sierra
-    sha256 "23844f7700b35bd8fe85a1f1559a16250f5be8042ac89c77003a0e0082c08782" => :el_capitan
+    sha256 "d4a3461d76f138a80ce27d657ed97cfd3522fbec9ff154230ca82278274f0a97" => :catalina
+    sha256 "f3cb27ac91ec3f5d53e40f83629592ca21b3f44c1b3ff836d829761838b60da1" => :mojave
+    sha256 "e113abb11c68625c53549852f9c59a205c0eaca994dc6bd09e94dc23cc5fcf5d" => :high_sierra
   end
 
   depends_on "cmake" => :build
+  depends_on "python" => :build
 
   def install
-    system "cmake", ".", *std_cmake_args
+    args = %W[
+      -DPYTHON_EXECUTABLE=#{Formula["python"].bin/"python3"}
+    ]
+
+    system "cmake", ".", *std_cmake_args, *args
     system "make"
     system "make", "install"
   end

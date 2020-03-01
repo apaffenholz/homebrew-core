@@ -1,35 +1,42 @@
 class Mmseqs2 < Formula
-  desc "Software suite for very fast protein sequence search and clustering"
-  homepage "https://mmseqs.org/"
-  url "https://github.com/soedinglab/MMseqs2/archive/2-23394.tar.gz"
-  version "2-23394"
-  sha256 "36763fff4c4de1ab6cfc37508a2ee9bd2f4b840e0c9415bd1214280f67b67072"
-  revision 1
+  desc "Software suite for very fast sequence search and clustering"
+  homepage "https://mmseqs.com/"
+  url "https://github.com/soedinglab/MMseqs2/archive/11-e1a1c.tar.gz"
+  version "11-e1a1c"
+  sha256 "ffe1ae300dbe1a0e3d72fc9e947356a4807f07951cb56316f36974d8d5875cbb"
+  head "https://github.com/soedinglab/MMseqs2.git"
 
   bottle do
-    cellar :any
-    sha256 "6e492564e40f85bf54383aa6013c9683646b235d68491b17af6d3ac34f1e5c32" => :high_sierra
-    sha256 "36c412cf77cad2bc556cb523e1c1b0a1bc32ce96197e196997d0f8b5c9c64d9a" => :sierra
-    sha256 "f83839b18c21e254800a830be8774c3f20d2c570d930d4b4cc6b9ec56eadcc7d" => :el_capitan
+    cellar :any_skip_relocation
+    sha256 "01a85a0afc0a96c90d0193f29746e8df250b18a0014da608103061cca8671a02" => :catalina
+    sha256 "2cd2a57ee4c697e72bc78a719b2aeca8f74db5cc0a1981190936b24388db14f3" => :mojave
+    sha256 "10048f97cb2a2ea25353aebccda0a0506a16b6f85c28dba060b33e946680840a" => :high_sierra
   end
 
   depends_on "cmake" => :build
-  depends_on "gcc"
+  depends_on "libomp"
+  depends_on "wget"
 
-  cxxstdlib_check :skip
-
-  fails_with :clang # needs OpenMP support
+  uses_from_macos "bzip2"
+  uses_from_macos "gawk"
+  uses_from_macos "zlib"
 
   resource "documentation" do
     url "https://github.com/soedinglab/MMseqs2.wiki.git",
-        :revision => "fda4cf3f63e4c5b01be9d6b66f6666e81cc8ca99"
+        :revision => "c77918c9cebb24075f3c102a73fb1d413017a1a5"
   end
 
   def install
     args = *std_cmake_args << "-DHAVE_TESTS=0" << "-DHAVE_MPI=0"
     args << "-DVERSION_OVERRIDE=#{version}"
+    args << "-DHAVE_SSE4_1=1"
 
-    args << "-DHAVE_SSE4_1=1" if build.bottle?
+    libomp = Formula["libomp"]
+    args << "-DOpenMP_C_FLAGS=\"-Xpreprocessor -fopenmp -I#{libomp.opt_include}\""
+    args << "-DOpenMP_C_LIB_NAMES=omp"
+    args << "-DOpenMP_CXX_FLAGS=\"-Xpreprocessor -fopenmp -I#{libomp.opt_include}\""
+    args << "-DOpenMP_CXX_LIB_NAMES=omp"
+    args << "-DOpenMP_omp_LIBRARY=#{libomp.opt_lib}/libomp.a"
 
     system "cmake", ".", *args
     system "make", "install"
@@ -41,16 +48,15 @@ class Mmseqs2 < Formula
 
   def caveats
     unless Hardware::CPU.sse4?
-      "MMseqs2 requires at least SSE4.1 CPU instruction support. The binary will not work correctly."
+      "MMseqs2 requires at least SSE4.1 CPU instruction support."
     end
   end
 
   test do
     system "#{bin}/mmseqs", "createdb", "#{pkgshare}/examples/QUERY.fasta", "q"
     system "#{bin}/mmseqs", "cluster", "q", "res", "tmp", "-s", "1"
-    assert_predicate testpath/"res", :exist?
-    assert_predicate (testpath/"res").size, :positive?
-    assert_predicate testpath/"res.index", :exist?
-    assert_predicate (testpath/"res.index").size, :positive?
+    system "#{bin}/mmseqs", "createtsv", "q", "q", "res", "res.tsv"
+    assert_predicate testpath/"res.tsv", :exist?
+    assert_predicate (testpath/"res.tsv").size, :positive?
   end
 end

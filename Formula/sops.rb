@@ -1,28 +1,28 @@
 class Sops < Formula
   desc "Editor of encrypted files"
   homepage "https://github.com/mozilla/sops"
-  url "https://github.com/mozilla/sops/archive/3.0.3.tar.gz"
-  sha256 "90da5ae9c76c39794cd35cb93a77d24b60b4c4bb55ef8abde95f44991290218c"
+  url "https://github.com/mozilla/sops/archive/v3.5.0.tar.gz"
+  sha256 "a9c257dc5ddaab736dce08b8c5b1f00e6ca1e3171909b6d7385689044ebe759b"
+  revision 1
   head "https://github.com/mozilla/sops.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "fa8cbfd43154b3511caa88f1fedd25d335592304891b6565a1b04f9e52f836e9" => :high_sierra
-    sha256 "674a7a6966646fd04bf7ce4a38406820d4bb1a8a0a683f3654f3ddd3d32b3f75" => :sierra
-    sha256 "f99d3db5b21b95900f814f10639cab492ca8a234da808d250bb413f4db9a63c1" => :el_capitan
+    sha256 "55e5624ed3a1c5ccd2113d663483e8c6fabbb45dede9b691f8921d698549e39e" => :catalina
+    sha256 "7df3685379929174b605e1767b13a19af0db45c4d7f27bbf6d3b6ac905235258" => :mojave
+    sha256 "67541150ddec0ae37ad7b7f4df4ecca8eb8814bf49708abe8cf1e94099f398bb" => :high_sierra
   end
 
   depends_on "go" => :build
 
   def install
-    ENV["GOPATH"] = buildpath
-    ENV["GOBIN"] = bin
-    (buildpath/"src/go.mozilla.org").mkpath
-    ln_s buildpath, "src/go.mozilla.org/sops"
-    system "make", "install"
+    system "go", "build", "-o", bin/"sops", "go.mozilla.org/sops/v3/cmd/sops"
+    pkgshare.install "example.yaml"
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/sops --version 2>&1")
+    assert_match version.to_s, shell_output("#{bin}/sops --version")
+
+    assert_match "Recovery failed because no master key was able to decrypt the file.", shell_output("#{bin}/sops #{pkgshare}/example.yaml 2>&1", 128)
   end
 end

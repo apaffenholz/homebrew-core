@@ -1,27 +1,30 @@
 class ArcadeLearningEnvironment < Formula
   desc "Platform for AI research"
   homepage "https://github.com/mgbellemare/Arcade-Learning-Environment"
-  url "https://github.com/mgbellemare/Arcade-Learning-Environment/archive/v0.6.0.tar.gz"
-  sha256 "da4597edf8ebef99961394daca44fa30148c778adff59ee5aec073ea94dcc175"
+  url "https://github.com/mgbellemare/Arcade-Learning-Environment/archive/v0.6.1.tar.gz"
+  sha256 "8059a4087680da03878c1648a8ceb0413a341032ecaa44bef4ef1f9f829b6dde"
   head "https://github.com/mgbellemare/Arcade-Learning-Environment.git"
 
   bottle do
     cellar :any
-    rebuild 1
-    sha256 "f89556072efec9025561b663ab9f2f5c613104e014bd28b9bd2e39b98de1aae3" => :high_sierra
-    sha256 "58daf6e1208b05e9fe09825a671c6821acc550d6f13ae4419bd47dee0c421181" => :sierra
-    sha256 "453a32af23fe2e68897267d4cd0e8ed728b50e4623d98c6b9d55612e2bdcba29" => :el_capitan
+    sha256 "7c00ddc0d9693ceaba062b77fb94e2a7aea2e6ccdfd16bb877c00c24e1ceaa48" => :catalina
+    sha256 "1ccf63b1ee913ffeffcbc28d36e75bfc6c28f5afac6b51ff31e28d0dd06f51fd" => :mojave
+    sha256 "bf91e1153dcc19178f77faa72b1761a5dcb284626cf16065196011d7b7d7ef6d" => :high_sierra
   end
 
   depends_on "cmake" => :build
   depends_on "numpy"
-  depends_on "python@2"
+  depends_on "python"
   depends_on "sdl"
 
   def install
-    system "cmake", ".", *std_cmake_args
+    args = std_cmake_args + %W[
+      -DCMAKE_INSTALL_NAME_DIR=#{opt_lib}
+      -DCMAKE_BUILD_WITH_INSTALL_NAME_DIR=ON
+    ]
+    system "cmake", ".", *args
     system "make", "install"
-    system "python", *Language::Python.setup_install_args(prefix)
+    system "python3", *Language::Python.setup_install_args(prefix)
   end
 
   test do
@@ -31,6 +34,6 @@ class ArcadeLearningEnvironment < Formula
       from ale_python_interface import ALEInterface;
       ale = ALEInterface();
     EOS
-    assert_match "ale.cfg", shell_output("python test.py 2>&1")
+    assert_match "ale.cfg", shell_output("python3 test.py 2>&1")
   end
 end

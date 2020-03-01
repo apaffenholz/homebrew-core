@@ -1,15 +1,15 @@
 class CheckPostgres < Formula
   desc "Monitor Postgres databases"
   homepage "https://bucardo.org/wiki/Check_postgres"
-  url "https://bucardo.org/downloads/check_postgres-2.23.0.tar.gz"
-  sha256 "93cdbe92bb451525219b131a6810d9da0525000f6795160f70751b105c858615"
+  url "https://bucardo.org/downloads/check_postgres-2.25.0.tar.gz"
+  sha256 "11b52f86c44d6cc26e9a4129e67c2589071dbe1b8ac1f8895761517491c6e44b"
   head "https://github.com/bucardo/check_postgres.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "6d722bc7277678495996ecaecf62f5b61ea5de5f225286cab5ad36be3d467a9a" => :high_sierra
-    sha256 "6d722bc7277678495996ecaecf62f5b61ea5de5f225286cab5ad36be3d467a9a" => :sierra
-    sha256 "6d722bc7277678495996ecaecf62f5b61ea5de5f225286cab5ad36be3d467a9a" => :el_capitan
+    sha256 "2f164aefe3706e144350278db4e9246359a8a58bba1f16fae289344553e33b64" => :catalina
+    sha256 "2f164aefe3706e144350278db4e9246359a8a58bba1f16fae289344553e33b64" => :mojave
+    sha256 "e0ae2298e162d333e8833ad294906ba369ac5adaf704b8478ebf54c7a134b9f4" => :high_sierra
   end
 
   depends_on "postgresql"

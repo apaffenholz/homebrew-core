@@ -1,21 +1,23 @@
 class GetIplayer < Formula
   desc "Utility for downloading TV and radio programmes from BBC iPlayer"
   homepage "https://github.com/get-iplayer/get_iplayer"
-  url "https://github.com/get-iplayer/get_iplayer/archive/v3.14.tar.gz"
-  sha256 "6436a942b819aaa4b3df56f990812124909476142febe6432304e7a621411522"
+  url "https://github.com/get-iplayer/get_iplayer/archive/v3.25.tar.gz"
+  sha256 "2ae278a812494d6289224e6d347c8761ec815ad84f4daf41fd0a4f62832b7d63"
   head "https://github.com/get-iplayer/get_iplayer.git", :branch => "develop"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "a726b2013a56964781e3395f7f8dad8ab09c289747b9c5631b863919f920c7bf" => :high_sierra
-    sha256 "188792fe7b2a0b69e959d10c81fa73483c169ee62da58f48f9c07b82c1963dc4" => :sierra
-    sha256 "3323464f538bac2a3679ddc19254bcd778cb216f16b9f57584224a994df2fd28" => :el_capitan
+    sha256 "039b49cd5c543dfa6d6a72ca1102aad3b1524b8d4a48cba0253c513bddbc1129" => :catalina
+    sha256 "4f46d21efe29329f06b853e744609a45acb64074376777ba5661ef4f925c95f5" => :mojave
+    sha256 "447f3960eb18c8b0779d98c93e187b3e9009995466b0c228ef6157a45115bdaf" => :high_sierra
   end
 
-  depends_on "atomicparsley" => :recommended
-  depends_on "ffmpeg" => :recommended
-
+  depends_on "atomicparsley"
+  depends_on "ffmpeg"
   depends_on :macos => :yosemite
+
+  uses_from_macos "libxml2"
+  uses_from_macos "perl"
 
   resource "IO::Socket::IP" do
     url "https://cpan.metacpan.org/authors/id/P/PE/PEVANS/IO-Socket-IP-0.39.tar.gz"
@@ -23,13 +25,18 @@ class GetIplayer < Formula
   end
 
   resource "IO::Socket::SSL" do
-    url "https://cpan.metacpan.org/authors/id/S/SU/SULLR/IO-Socket-SSL-2.056.tar.gz"
-    sha256 "91451ecc28b243a78b438f0a42db24c4b60a86f088879b38e40bdbd697818259"
+    url "https://cpan.metacpan.org/authors/id/S/SU/SULLR/IO-Socket-SSL-2.066.tar.gz"
+    sha256 "0d47064781a545304d5dcea5dfcee3acc2e95a32e1b4884d80505cde8ee6ebcd"
   end
 
   resource "Mojolicious" do
-    url "https://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-7.77.tar.gz"
-    sha256 "b6416de94938ee621e355c36fd837704dd7cf15846148dfbbfb82e8710af846b"
+    url "https://cpan.metacpan.org/authors/id/S/SR/SRI/Mojolicious-7.94.tar.gz"
+    sha256 "171a1741f3ea57519657bfb1e40a5290149d7c7d69a1131464c7db23029e8f6e"
+  end
+
+  resource "Mozilla::CA" do
+    url "https://cpan.metacpan.org/authors/id/A/AB/ABH/Mozilla-CA-20180117.tar.gz"
+    sha256 "f2cc9fbe119f756313f321e0d9f1fac0859f8f154ac9d75b1a264c1afdf4e406"
   end
 
   def install

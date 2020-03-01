@@ -3,23 +3,23 @@ class Scour < Formula
 
   desc "SVG file scrubber"
   homepage "https://www.codedread.com/scour/"
-  url "https://github.com/scour-project/scour/archive/v0.36.tar.gz"
-  sha256 "1b6820430c671c71406bf79afced676699d03bd3fcc65f01a651da5dcbcf3d3b"
+  url "https://github.com/scour-project/scour/archive/v0.37.tar.gz"
+  sha256 "4fcb961586d8a6d98ac9343ca5647421b98fdc79b51d81a1d3d18576b7908823"
+  revision 2
   head "https://github.com/scour-project/scour.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "19ad78d7432ab304f132fc35713b6fb1c930adfd245a55693f932fc460ee00f4" => :high_sierra
-    sha256 "6f38d0966f43d293688b66ea4fd518e0c03f8aa2f9aef66940f86b319aa3fbc5" => :sierra
-    sha256 "26b5885d3e21030da63a640e044ef553d0ec8828a15cbeac9a19eaaab00be637" => :el_capitan
-    sha256 "cf80be6ef39cbcdb2e4944799442f0d5fa2a76295fb54eae8677de6b72c8626d" => :yosemite
+    sha256 "cfd43767bc7e4fa7ee903db637b45c3117ea2e3250e5459387546c97bc8f08ca" => :catalina
+    sha256 "c2a82bca29949c3162b21d35af0e1ec7ab54697511ac3e25e79abbb2ea418161" => :mojave
+    sha256 "51e2a9e3abba88c05924fb48b2337836c3baf147bd1058d8e1e4af9343cb596a" => :high_sierra
   end
 
-  depends_on "python@2"
+  depends_on "python@3.8"
 
   resource "six" do
-    url "https://files.pythonhosted.org/packages/b3/b2/238e2590826bfdd113244a40d9d3eb26918bd798fc187e2360a8367068db/six-1.10.0.tar.gz"
-    sha256 "105f8d68616f8248e24bf0e9372ef04d3cc10104f1980f54d57b2ce73a5ad56a"
+    url "https://files.pythonhosted.org/packages/16/d8/bc6316cf98419719bd59c91742194c111b6f2e85abac88e496adefaf7afe/six-1.11.0.tar.gz"
+    sha256 "70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9"
   end
 
   def install

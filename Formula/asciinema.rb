@@ -1,26 +1,24 @@
 class Asciinema < Formula
+  include Language::Python::Virtualenv
+
   desc "Record and share terminal sessions"
   homepage "https://asciinema.org"
-  url "https://github.com/asciinema/asciinema/archive/v2.0.1.tar.gz"
-  sha256 "7087b247dae36d04821197bc14ebd4248049592b299c9878d8953c025ac802e4"
+  url "https://files.pythonhosted.org/packages/a7/71/771c859795e02c71c187546f34f7535487b97425bc1dad1e5f6ad2651357/asciinema-2.0.2.tar.gz"
+  sha256 "32f2c1a046564e030708e596f67e0405425d1eca9d5ec83cd917ef8da06bc423"
+  revision 1
   head "https://github.com/asciinema/asciinema.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "e312010e2476d8e9544a6f7e11290f6188a51b71b4da5afafb043cb4655c9fcd" => :high_sierra
-    sha256 "e312010e2476d8e9544a6f7e11290f6188a51b71b4da5afafb043cb4655c9fcd" => :sierra
-    sha256 "e312010e2476d8e9544a6f7e11290f6188a51b71b4da5afafb043cb4655c9fcd" => :el_capitan
+    sha256 "5422076ad38dc1ebeb2b70dc3312a329e0f4e72dd747cdd134d8df25c669b98e" => :catalina
+    sha256 "326c68e10e65f73d1dcd0134ae912e075c7475422b04b90d714a6ee513ceae91" => :mojave
+    sha256 "d665c2d995562ef9c7aadbec4707d567851ba8d46df5e7ae02b23be9cc26c0c3" => :high_sierra
   end
 
-  depends_on "python"
+  depends_on "python@3.8"
 
   def install
-    xy = Language::Python.major_minor_version "python3"
-    ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python#{xy}/site-packages"
-    system "python3", *Language::Python.setup_install_args(libexec)
-
-    bin.install Dir[libexec/"bin/*"]
-    bin.env_script_all_files(libexec/"bin", :PYTHONPATH => ENV["PYTHONPATH"])
+    virtualenv_install_with_resources
   end
 
   test do

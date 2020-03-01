@@ -1,34 +1,35 @@
 class BoostPython < Formula
   desc "C++ library for C++/Python2 interoperability"
   homepage "https://www.boost.org/"
-  url "https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2"
-  sha256 "2684c972994ee57fc5632e03bf044746f6eb45d4920c343937a465fd67a5adba"
+  url "https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2"
+  sha256 "59c9b274bc451cf91a9ba1dd2c7fdcaf5d60b1b3aa83f2c9fa143417cc660722"
   head "https://github.com/boostorg/boost.git"
 
   bottle do
     cellar :any
-    sha256 "af466a98257575e4f0e39c7bdc449fd83cd61f4ff93693ea749b84940f4bf918" => :high_sierra
-    sha256 "b5c3bcb8c612b597cd2a26158a5a17eca681d9e4356cd2f72c8f2e4154ce55c4" => :sierra
-    sha256 "5dbe82c61533303630269f2e07591ad572829ec7f3af800af7553bc359baf07a" => :el_capitan
+    sha256 "c15c8bf03d5ca454c93782648f700c1149c164bec8334561ef3727eee0f0435a" => :catalina
+    sha256 "12e538b3468eff6e1afe41cbe595a389473ad37972fbc1ea69a5abc37ead890e" => :mojave
+    sha256 "d0ff391db5f8864d6025e654708a84629aba54d59bdf7b366a6eb7cdca808918" => :high_sierra
   end
 
   depends_on "boost"
 
-  needs :cxx11
+  uses_from_macos "python@2"
 
   def install
     # "layout" should be synchronized with boost
-    args = ["--prefix=#{prefix}",
-            "--libdir=#{lib}",
-            "-d2",
-            "-j#{ENV.make_jobs}",
-            "--layout=tagged",
-            "threading=multi,single",
-            "link=shared,static"]
+    args = %W[
+      -d2
+      -j#{ENV.make_jobs}
+      --layout=tagged-1.66
+      install
+      threading=multi,single
+      link=shared,static
+    ]
 
-    # Trunk starts using "clang++ -x c" to select C compiler which breaks C++11
-    # handling using ENV.cxx11. Using "cxxflags" and "linkflags" still works.
-    args << "cxxflags=-std=c++11"
+    # Boost is using "clang++ -x c" to select C compiler which breaks C++14
+    # handling using ENV.cxx14. Using "cxxflags" and "linkflags" still works.
+    args << "cxxflags=-std=c++14"
     if ENV.compiler == :clang
       args << "cxxflags=-stdlib=libc++" << "linkflags=-stdlib=libc++"
     end
@@ -38,11 +39,24 @@ class BoostPython < Formula
     system "./bootstrap.sh", "--prefix=#{prefix}", "--libdir=#{lib}",
                              "--with-libraries=python", "--with-python=python"
 
-    system "./b2", "--build-dir=build-python", "--stagedir=stage-python",
-                   "python=#{pyver}", *args
+    system "./b2", "--build-dir=build-python",
+                   "--stagedir=stage-python",
+                   "--libdir=install-python/lib",
+                   "--prefix=install-python",
+                   "python=#{pyver}",
+                   *args
 
+    lib.install Dir["install-python/lib/*.*"]
     lib.install Dir["stage-python/lib/*py*"]
     doc.install Dir["libs/python/doc/*"]
+  end
+
+  def caveats; <<~EOS
+    This formula provides Boost.Python for Python 2. Due to a
+    collision with boost-python3, the CMake Config files are not
+    available. Please use -DBoost_NO_BOOST_CMAKE=ON when building
+    with CMake or switch to Python 3.
+  EOS
   end
 
   test do
@@ -57,11 +71,13 @@ class BoostPython < Formula
       }
     EOS
 
+    pyprefix = `python-config --prefix`.chomp
     pyincludes = Utils.popen_read("python-config --includes").chomp.split(" ")
     pylib = Utils.popen_read("python-config --ldflags").chomp.split(" ")
 
-    system ENV.cxx, "-shared", "hello.cpp", "-L#{lib}", "-lboost_python27", "-o",
-           "hello.so", *pyincludes, *pylib
+    system ENV.cxx, "-shared", "hello.cpp", "-L#{lib}", "-lboost_python27",
+                    "-o", "hello.so", "-I#{pyprefix}/include/python2.7",
+                    *pyincludes, *pylib
 
     output = <<~EOS
       from __future__ import print_function

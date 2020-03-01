@@ -1,73 +1,57 @@
 class Scipy < Formula
   desc "Software for mathematics, science, and engineering"
   homepage "https://www.scipy.org"
-  url "https://files.pythonhosted.org/packages/07/76/7e844757b9f3bf5ab9f951ccd3e4a8eed91ab8720b0aac8c2adcc2fdae9f/scipy-1.1.0.tar.gz"
-  sha256 "878352408424dffaa695ffedf2f9f92844e116686923ed9aa8626fc30d32cfd1"
+  url "https://files.pythonhosted.org/packages/04/ab/e2eb3e3f90b9363040a3d885ccc5c79fe20c5b8a3caa8fe3bf47ff653260/scipy-1.4.1.tar.gz"
+  sha256 "dee1bbf3a6c8f73b6b218cb28eed8dd13347ea2f87d572ce19b289d6fd3fbc59"
   head "https://github.com/scipy/scipy.git"
 
   bottle do
-    sha256 "14f480aab5e6de3cabe57b824ee37bc012b8c502e85329be737bffe652124a24" => :high_sierra
-    sha256 "886a096bcb5872cf150601a539f0431c5ac7ca1cc8a4c0e6be86db2ec3ac8530" => :sierra
-    sha256 "e4c87ee62b66c9e021a0b6e8e5d4c4db4177b6da074914a82a4a029a552dcefc" => :el_capitan
+    cellar :any
+    sha256 "19c0a221d401c458258d971cbc46b986a069df090cedfb1a2a0993df4aef2220" => :catalina
+    sha256 "e82b952d67784d5ecd51f49ccbc39debb6fa97f3d79fa042478c9bdf1aeb6f42" => :mojave
+    sha256 "754f650e504d31d5a91cb3dca5c3ab0ed05b929dc958c1fe05805ce976338e0b" => :high_sierra
   end
-
-  option "without-python", "Build without python2 support"
 
   depends_on "swig" => :build
   depends_on "gcc" # for gfortran
   depends_on "numpy"
-  depends_on "python@2" => :recommended
-  depends_on "python" => :recommended
+  depends_on "openblas"
+  depends_on "pybind11"
+  depends_on "python"
 
   cxxstdlib_check :skip
 
-  # https://github.com/Homebrew/homebrew-python/issues/110
-  # There are ongoing problems with gcc+accelerate.
-  fails_with :gcc
-
   def install
+    openblas = Formula["openblas"].opt_prefix
+    ENV["ATLAS"] = "None" # avoid linking against Accelerate.framework
+    ENV["BLAS"] = ENV["LAPACK"] = "#{openblas}/lib/libopenblas.dylib"
+
     config = <<~EOS
       [DEFAULT]
       library_dirs = #{HOMEBREW_PREFIX}/lib
       include_dirs = #{HOMEBREW_PREFIX}/include
+      [openblas]
+      libraries = openblas
+      library_dirs = #{openblas}/lib
+      include_dirs = #{openblas}/include
     EOS
 
     Pathname("site.cfg").write config
 
-    # gfortran is gnu95
-    Language::Python.each_python(build) do |python, version|
-      ENV["PYTHONPATH"] = Formula["numpy"].opt_lib/"python#{version}/site-packages"
-      ENV.prepend_create_path "PYTHONPATH", lib/"python#{version}/site-packages"
-      system python, "setup.py", "build", "--fcompiler=gnu95"
-      system python, *Language::Python.setup_install_args(prefix)
-    end
+    version = Language::Python.major_minor_version "python3"
+    ENV["PYTHONPATH"] = Formula["numpy"].opt_lib/"python#{version}/site-packages"
+    ENV.prepend_create_path "PYTHONPATH", lib/"python#{version}/site-packages"
+    system "python3", "setup.py", "build", "--fcompiler=gnu95"
+    system "python3", *Language::Python.setup_install_args(prefix)
   end
 
   # cleanup leftover .pyc files from previous installs which can cause problems
   # see https://github.com/Homebrew/homebrew-python/issues/185#issuecomment-67534979
   def post_install
-    Language::Python.each_python(build) do |_python, version|
-      rm_f Dir["#{HOMEBREW_PREFIX}/lib/python#{version}/site-packages/scipy/**/*.pyc"]
-    end
-  end
-
-  def caveats
-    if (build.with? "python@2") && !Formula["python@2"].installed?
-      homebrew_site_packages = Language::Python.homebrew_site_packages
-      user_site_packages = Language::Python.user_site_packages "python"
-      <<~EOS
-        If you use system python (that comes - depending on the OS X version -
-        with older versions of numpy, scipy and matplotlib), you may need to
-        ensure that the brewed packages come earlier in Python's sys.path with:
-          mkdir -p #{user_site_packages}
-          echo 'import sys; sys.path.insert(1, "#{homebrew_site_packages}")' >> #{user_site_packages}/homebrew.pth
-      EOS
-    end
+    rm_f Dir["#{HOMEBREW_PREFIX}/lib/python*.*/site-packages/scipy/**/*.pyc"]
   end
 
   test do
-    Language::Python.each_python(build) do |python, _version|
-      system python, "-c", "import scipy"
-    end
+    system "python3", "-c", "import scipy"
   end
 end

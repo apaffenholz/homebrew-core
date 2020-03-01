@@ -1,15 +1,14 @@
 class CdogsSdl < Formula
   desc "Classic overhead run-and-gun game"
   homepage "https://cxong.github.io/cdogs-sdl/"
-  url "https://github.com/cxong/cdogs-sdl/archive/0.6.2.tar.gz"
-  sha256 "d6f421c760b15b706bdfc79ed8d18802dc2e8efeefabb69a31679c9b51f328ab"
+  url "https://github.com/cxong/cdogs-sdl/archive/0.7.3.tar.gz"
+  sha256 "0a19a619dd02f647d680b245abc97359e04cdc4231a61b86397a37100907195c"
   head "https://github.com/cxong/cdogs-sdl.git"
 
   bottle do
-    sha256 "aabf4faff2a2da410e14079a9520ea715106a294edf8748edad7bf480cedd605" => :high_sierra
-    sha256 "b612f4fdf5d7f15e2ff88a5045437d1d411e254e6cda143d3256870bc5b2a30c" => :sierra
-    sha256 "c154d6101f4b903488527a604b570e28703a19854da31d56e082444fe5dda1a5" => :el_capitan
-    sha256 "535668e2f4619dde88da207249a2bbaaecd34d0972ce6f87947868518d7a6a54" => :yosemite
+    sha256 "e26c3640130974477c5577df4d2629b07b8ea40af46abc9abab37d45608f530f" => :catalina
+    sha256 "5e136002cb8733b5cd4ca11624e5175cf39d9909e99e211f8e1d8be08071dad8" => :mojave
+    sha256 "2eefa54af63f981a35a4713234d43f0a5b451b66828f6a51d5d5c91748a64e6c" => :high_sierra
   end
 
   depends_on "cmake" => :build
@@ -23,8 +22,7 @@ class CdogsSdl < Formula
     args << "-DCDOGS_DATA_DIR=#{pkgshare}/"
     system "cmake", ".", *args
     system "make"
-    prefix.install "src/cdogs-sdl.app"
-    bin.write_exec_script "#{prefix}/cdogs-sdl.app/Contents/MacOS/cdogs-sdl"
+    bin.install %w[src/cdogs-sdl src/cdogs-sdl-editor]
     pkgshare.install %w[data dogfights graphics missions music sounds]
     doc.install Dir["doc/*"]
   end

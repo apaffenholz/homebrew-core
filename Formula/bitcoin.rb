@@ -1,15 +1,15 @@
 class Bitcoin < Formula
   desc "Decentralized, peer to peer payment network"
   homepage "https://bitcoin.org/"
-  url "https://bitcoin.org/bin/bitcoin-core-0.16.0/bitcoin-0.16.0.tar.gz"
-  sha256 "8cbec0397d932cab7297a8c23c918392f6eebd410646b4b954787de9f4a3ee40"
-  revision 2
+  url "https://bitcoin.org/bin/bitcoin-core-0.19.0.1/bitcoin-0.19.0.1.tar.gz"
+  sha256 "7ac9f972249a0a16ed01352ca2a199a5448fe87a4ea74923404a40b4086de284"
+  revision 1
 
   bottle do
     cellar :any
-    sha256 "0df28afa3424cd564072c92d92047e49f82136c02509b2979e645dd3559a7922" => :high_sierra
-    sha256 "de00614e3315fb047faa56140735c153d967b98150fba07a4b9bbd25a05739b2" => :sierra
-    sha256 "c1d5a0641573188ea59a06ed75498e4b779c5067662d07c853c1223dd085e3c1" => :el_capitan
+    sha256 "7af2f9d403cd5ccaa285f6c284aa37112a8a1060c93a656c750a4fdcab45abcc" => :catalina
+    sha256 "8d05c31f6a2e15aa6bb23f69938adc50df45a10d6277ed07467e849b91db1bd4" => :mojave
+    sha256 "4c9d743d4186adcd4660ebb2456f5dd5586a09f461d302ba09756be5510ceba9" => :high_sierra
   end
 
   head do
@@ -25,14 +25,18 @@ class Bitcoin < Formula
   depends_on "boost"
   depends_on "libevent"
   depends_on "miniupnpc"
-  depends_on "openssl"
+  depends_on "openssl@1.1"
   depends_on "zeromq"
 
-  needs :cxx11
+  # Fix for Boost 1.72
+  # https://github.com/bitcoin/bitcoin/pull/17654
+  patch do
+    url "https://github.com/bitcoin/bitcoin/commit/ddecb671.diff?full_index=1"
+    sha256 "79e52316dbcb1ad06caeea58363ab2365983522d23c02f3102c88138ec9b18b0"
+  end
 
   def install
-    if MacOS.version == :el_capitan && MacOS::Xcode.installed? &&
-       MacOS::Xcode.version >= "8.0"
+    if MacOS.version == :el_capitan && MacOS::Xcode.version >= "8.0"
       ENV.delete("SDKROOT")
     end
 
@@ -62,7 +66,7 @@ class Bitcoin < Formula
       <true/>
     </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do

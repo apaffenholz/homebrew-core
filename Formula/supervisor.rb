@@ -3,22 +3,18 @@ class Supervisor < Formula
 
   desc "Process Control System"
   homepage "http://supervisord.org/"
-  url "https://github.com/Supervisor/supervisor/archive/3.3.4.tar.gz"
-  sha256 "d6456e784a54d90b11bacd95d18382e336aa9786f33c91830a0941df4748ed02"
+  url "https://github.com/Supervisor/supervisor/archive/4.1.0.tar.gz"
+  sha256 "e4e87a309d34c1356b77d1dfd300191b2a7c314e050d7b3853e5b91ef166c2f2"
+  revision 1
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "de602ba5a4d850c369a1cb9f7275044babd776b21aed0d028e87b68e68dba2b4" => :high_sierra
-    sha256 "432c2afe07eecfb03c4b8268caa0898b68cd7af5bf6364ae71d054e805842905" => :sierra
-    sha256 "dfae5fc72acbfe08f53222ee70fa34259c29a46927272f1af8512c010acf02df" => :el_capitan
+    sha256 "864dad06b94bbcf67d080e8b810595bee7aa8dae9de0dc1db8e9d2360cde7875" => :catalina
+    sha256 "e84857d56cc7842a28e367e7323490f5ab804f98d54e17d3ed5ba15562446cc8" => :mojave
+    sha256 "ace5d03a4dd4c166f10af675a375cac75961fa5498f27fb19a8abfc3e0b78ef2" => :high_sierra
   end
 
-  depends_on "python@2"
-
-  resource "meld3" do
-    url "https://files.pythonhosted.org/packages/45/a0/317c6422b26c12fe0161e936fc35f36552069ba8e6f7ecbd99bbffe32a5f/meld3-1.0.2.tar.gz"
-    sha256 "f7b754a0fde7a4429b2ebe49409db240b5699385a572501bb0d5627d299f9558"
-  end
+  depends_on "python@3.8"
 
   def install
     inreplace buildpath/"supervisor/skel/sample.conf" do |s|

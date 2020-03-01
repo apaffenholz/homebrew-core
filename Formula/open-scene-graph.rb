@@ -1,43 +1,28 @@
 class OpenSceneGraph < Formula
   desc "3D graphics toolkit"
   homepage "https://github.com/openscenegraph/OpenSceneGraph"
-  url "https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.0.tar.gz"
-  sha256 "6f57134ea74a39f1c7b24c285e6278cf906c47f6c681573b86d12173a466efed"
+  url "https://github.com/openscenegraph/OpenSceneGraph/archive/OpenSceneGraph-3.6.5.tar.gz"
+  sha256 "aea196550f02974d6d09291c5d83b51ca6a03b3767e234a8c0e21322927d1e12"
   head "https://github.com/openscenegraph/OpenSceneGraph.git"
 
   bottle do
-    sha256 "1c347539e968f1920c78b8570e1ff32ed60e741c02adbd6a9d5cfa5834e413a5" => :high_sierra
-    sha256 "e65d17f485dbfeca6c4709712b4ac197f70bcc78766ca78381b633be551d76e0" => :sierra
-    sha256 "665ffa5bb902daee0b54b97d68a104b763fc02ed04299c6eb71065daa66a4145" => :el_capitan
+    sha256 "a5af0114a8096d9bdc63682eb7a913b1a72b6f0d6cc20f526c0734b8111b7499" => :catalina
+    sha256 "35070bb7f3ac7460d14df196d7d0e9110fbdf84e61fa10b0ed2613d697310aa0" => :mojave
+    sha256 "9bbb98357b02428b90ffd8eadb5da85afcc2360aee2c8de8820fbed241f94a1d" => :high_sierra
   end
-
-  option "with-docs", "Build the documentation with Doxygen and Graphviz"
-
-  deprecated_option "docs" => "with-docs"
 
   depends_on "cmake" => :build
+  depends_on "doxygen" => :build
+  depends_on "graphviz" => :build
   depends_on "pkg-config" => :build
-  depends_on "jpeg"
-  depends_on "gtkglext"
   depends_on "freetype"
+  depends_on "gtkglext"
+  depends_on "jpeg-turbo"
   depends_on "sdl"
-  depends_on "gdal" => :optional
-  depends_on "jasper" => :optional
-  depends_on "openexr" => :optional
-  depends_on "dcmtk" => :optional
-  depends_on "librsvg" => :optional
-  depends_on "collada-dom" => :optional
-  depends_on "gnuplot" => :optional
-  depends_on "ffmpeg" => :optional
 
   # patch necessary to ensure support for gtkglext-quartz
-  # filed as an issue to the developers https://github.com/openscenegraph/osg/issues/34
+  # filed as an issue to the developers https://github.com/openscenegraph/OpenSceneGraph/issues/34
   patch :DATA
-
-  if build.with? "docs"
-    depends_on "doxygen" => :build
-    depends_on "graphviz" => :build
-  end
 
   def install
     # Fix "fatal error: 'os/availability.h' file not found" on 10.11 and
@@ -46,39 +31,25 @@ class OpenSceneGraph < Formula
       ENV["SDKROOT"] = MacOS.sdk_path
     end
 
-    args = std_cmake_args
-    # Disable opportunistic linkage
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_GDAL=ON" if build.without? "gdal"
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_Jasper=ON" if build.without? "jasper"
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_OpenEXR=ON" if build.without? "openexr"
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_DCMTK=ON" if build.without? "dcmtk"
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_RSVG=ON" if build.without? "librsvg"
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_COLLADA=ON" if build.without? "collada-dom"
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_FFmpeg=ON" if build.without? "ffmpeg"
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_cairo=ON"
-    args << "-DCMAKE_DISABLE_FIND_PACKAGE_TIFF=ON"
-
-    args << "-DBUILD_DOCUMENTATION=" + (build.with?("docs") ? "ON" : "OFF")
-    args << "-DCMAKE_CXX_FLAGS=-Wno-error=narrowing" # or: -Wno-c++11-narrowing
-
-    if MacOS.prefer_64_bit?
-      args << "-DCMAKE_OSX_ARCHITECTURES=#{Hardware::CPU.arch_64_bit}"
-      args << "-DOSG_DEFAULT_IMAGE_PLUGIN_FOR_OSX=imageio"
-      args << "-DOSG_WINDOWING_SYSTEM=Cocoa"
-    else
-      args << "-DCMAKE_OSX_ARCHITECTURES=#{Hardware::CPU.arch_32_bit}"
-    end
-
-    if build.with? "collada-dom"
-      args << "-DCOLLADA_INCLUDE_DIR=#{Formula["collada-dom"].opt_include}/collada-dom2.4"
-    end
+    args = std_cmake_args + %w[
+      -DBUILD_DOCUMENTATION=ON
+      -DCMAKE_DISABLE_FIND_PACKAGE_FFmpeg=ON
+      -DCMAKE_DISABLE_FIND_PACKAGE_GDAL=ON
+      -DCMAKE_DISABLE_FIND_PACKAGE_Jasper=ON
+      -DCMAKE_DISABLE_FIND_PACKAGE_OpenEXR=ON
+      -DCMAKE_DISABLE_FIND_PACKAGE_TIFF=ON
+      -DCMAKE_CXX_FLAGS=-Wno-error=narrowing
+      -DCMAKE_OSX_ARCHITECTURES=x86_64
+      -DOSG_DEFAULT_IMAGE_PLUGIN_FOR_OSX=imageio
+      -DOSG_WINDOWING_SYSTEM=Cocoa
+    ]
 
     mkdir "build" do
       system "cmake", "..", *args
       system "make"
-      system "make", "doc_openscenegraph" if build.with? "docs"
+      system "make", "doc_openscenegraph"
       system "make", "install"
-      doc.install Dir["#{prefix}/doc/OpenSceneGraphReferenceDocs/*"] if build.with? "docs"
+      doc.install Dir["#{prefix}/doc/OpenSceneGraphReferenceDocs/*"]
     end
   end
 
@@ -97,6 +68,7 @@ class OpenSceneGraph < Formula
     assert_equal `./test`.chomp, version.to_s
   end
 end
+
 __END__
 diff --git a/CMakeModules/FindGtkGl.cmake b/CMakeModules/FindGtkGl.cmake
 index 321cede..6497589 100644

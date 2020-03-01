@@ -1,34 +1,34 @@
 class MingwW64 < Formula
   desc "Minimalist GNU for Windows and GCC cross-compilers"
   homepage "https://mingw-w64.org/"
-  url "https://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-v5.0.3.tar.bz2"
-  sha256 "2a601db99ef579b9be69c775218ad956a24a09d7dabc9ff6c5bd60da9ccc9cb4"
-  revision 3
+  url "https://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-v7.0.0.tar.bz2"
+  sha256 "aa20dfff3596f08a7f427aab74315a6cb80c2b086b4a107ed35af02f9496b628"
+  revision 1
 
   bottle do
-    sha256 "0bdb116192aedd32a95832eca99885cbd4ce27fd1d9ee4343348083f0135c7f3" => :high_sierra
-    sha256 "0a1fa5d5f05bb2b288660c157d1dc6bd366d22973b9d718046f675e223790216" => :sierra
-    sha256 "077d13bc5b6576ff1976ff4320382449f248224888d6e13d49871ce49c945a18" => :el_capitan
+    sha256 "d7a256ed5cbbda5c055c05d628a1469abe72707961f3960d768de25035b7f4fe" => :catalina
+    sha256 "6072ce08e6c12ad2a519ca5fac3f10e0317d8522719a212174574e42a6cdec4c" => :mojave
+    sha256 "1dde3bae255dc729cfbc82a1805df00e7b738fc2db7f943bf818c6b123d54f6e" => :high_sierra
   end
-
-  depends_on "gmp"
-  depends_on "mpfr"
-  depends_on "libmpc"
-  depends_on "isl"
 
   # Apple's makeinfo is old and has bugs
   depends_on "texinfo" => :build
 
+  depends_on "gmp"
+  depends_on "isl"
+  depends_on "libmpc"
+  depends_on "mpfr"
+
   resource "binutils" do
-    url "https://ftp.gnu.org/gnu/binutils/binutils-2.29.1.tar.gz"
-    mirror "https://ftpmirror.gnu.org/binutils/binutils-2.29.1.tar.gz"
-    sha256 "0d9d2bbf71e17903f26a676e7fba7c200e581c84b8f2f43e72d875d0e638771c"
+    url "https://ftp.gnu.org/gnu/binutils/binutils-2.33.1.tar.xz"
+    mirror "https://ftpmirror.gnu.org/binutils/binutils-2.33.1.tar.xz"
+    sha256 "ab66fc2d1c3ec0359b8e08843c9f33b63e8707efdff5e4cc5c200eae24722cbf"
   end
 
   resource "gcc" do
-    url "https://ftp.gnu.org/gnu/gcc/gcc-7.3.0/gcc-7.3.0.tar.xz"
-    mirror "https://ftpmirror.gnu.org/gcc/gcc-7.3.0/gcc-7.3.0.tar.xz"
-    sha256 "832ca6ae04636adbb430e865a1451adf6979ab44ca1c8374f61fba65645ce15c"
+    url "https://ftp.gnu.org/gnu/gcc/gcc-9.2.0/gcc-9.2.0.tar.xz"
+    mirror "https://ftpmirror.gnu.org/gcc/gcc-9.2.0/gcc-9.2.0.tar.xz"
+    sha256 "ea6ef08f121239da5695f76c9b33637a118dcf63e24164422231917fa61fb206"
   end
 
   def target_archs
@@ -43,6 +43,7 @@ class MingwW64 < Formula
       resource("binutils").stage do
         args = %W[
           --target=#{target}
+          --with-sysroot=#{arch_dir}
           --prefix=#{arch_dir}
           --enable-targets=#{target}
           --disable-multilib
@@ -70,6 +71,7 @@ class MingwW64 < Formula
       resource("gcc").stage buildpath/"gcc"
       args = %W[
         --target=#{target}
+        --with-sysroot=#{arch_dir}
         --prefix=#{arch_dir}
         --with-bugurl=https://github.com/Homebrew/homebrew-core/issues
         --enable-languages=c,c++,fortran
@@ -80,6 +82,7 @@ class MingwW64 < Formula
         --with-mpc=#{Formula["libmpc"].opt_prefix}
         --with-isl=#{Formula["isl"].opt_prefix}
         --disable-multilib
+        --enable-threads=posix
       ]
 
       mkdir "#{buildpath}/gcc/build-#{arch}" do
@@ -94,6 +97,7 @@ class MingwW64 < Formula
         CXX=#{target}-g++
         CPP=#{target}-cpp
         --host=#{target}
+        --with-sysroot=#{arch_dir}/#{target}
         --prefix=#{arch_dir}/#{target}
       ]
 
@@ -109,22 +113,26 @@ class MingwW64 < Formula
         system "make", "install"
       end
 
-      # Finish building GCC (runtime libraries)
-      chdir "#{buildpath}/gcc/build-#{arch}" do
-        system "make"
-        system "make", "install"
-      end
-
       # Build the winpthreads library
+      # we need to build this prior to the
+      # GCC runtime libraries, to have `-lpthread`
+      # available, for `--enable-threads=posix`
       args = %W[
         CC=#{target}-gcc
         CXX=#{target}-g++
         CPP=#{target}-cpp
         --host=#{target}
+        --with-sysroot=#{arch_dir}/#{target}
         --prefix=#{arch_dir}/#{target}
       ]
       mkdir "mingw-w64-libraries/winpthreads/build-#{arch}" do
         system "../configure", *args
+        system "make"
+        system "make", "install"
+      end
+
+      # Finish building GCC (runtime libraries)
+      chdir "#{buildpath}/gcc/build-#{arch}" do
         system "make"
         system "make", "install"
       end
@@ -151,6 +159,7 @@ class MingwW64 < Formula
     EOS
 
     ENV["LC_ALL"] = "C"
+    ENV.remove_macosxsdk
     target_archs.each do |arch|
       target = "#{arch}-w64-mingw32"
       outarch = (arch == "i686") ? "i386" : "x86-64"

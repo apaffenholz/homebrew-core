@@ -1,49 +1,54 @@
 class Suricata < Formula
   desc "Network IDS, IPS, and security monitoring engine"
   homepage "https://suricata-ids.org/"
-  url "https://www.openinfosecfoundation.org/download/suricata-4.0.4.tar.gz"
-  sha256 "617e83b6e20b03aa7d5e05a980d3cb6d2810ec18a6f15a36bf66c81c9c0a2abb"
+  url "https://www.openinfosecfoundation.org/download/suricata-5.0.2.tar.gz"
+  sha256 "7f30cac92feeab2a9281b6059b96f9f163dce9aadcc959a6c0b9a2f6d750cee7"
 
   bottle do
-    sha256 "d01576e7a951c8909a2193e758ca7d19b5d47d818547172317d4e47a63b08245" => :high_sierra
-    sha256 "45581acbe7020a50fea0dc1fb72a71739053b1ad12f493f10b20b2a910809c9f" => :sierra
-    sha256 "76b6f1235a829f6744181f82ed216a31060b1e266cbdb519d78629416b46b18a" => :el_capitan
+    sha256 "c53984e39929bf1649a63c44ed33ca04d669a9e4214637d4ade862331f004315" => :catalina
+    sha256 "4db4344400d879ec86f10a381b507ef16a6fd41f83ec7aa009c10d3cb82d60d0" => :mojave
+    sha256 "4ad2a8c5dee845881c60942cf7118ed083516a9d8d630d67b046f57a462a23ec" => :high_sierra
   end
 
-  depends_on "python@2"
   depends_on "pkg-config" => :build
+  depends_on "rust" => :build
+  depends_on "jansson"
   depends_on "libmagic"
   depends_on "libnet"
   depends_on "libyaml"
-  depends_on "pcre"
-  depends_on "nss"
+  depends_on "lz4"
   depends_on "nspr"
-  depends_on "geoip" => :optional
-  depends_on "lua" => :optional
-  depends_on "luajit" => :optional
-  depends_on "jansson" => :optional
-  depends_on "hiredis" => :optional
+  depends_on "nss"
+  depends_on "pcre"
+  depends_on "python"
 
   resource "argparse" do
-    url "https://files.pythonhosted.org/packages/source/a/argparse/argparse-1.4.0.tar.gz"
+    url "https://files.pythonhosted.org/packages/18/dd/e617cfc3f6210ae183374cd9f6a26b20514bbb5a792af97949c5aacddf0f/argparse-1.4.0.tar.gz"
     sha256 "62b089a55be1d8949cd2bc7e0df0bddb9e028faefc8c32038cc84862aefdd6e4"
   end
 
+  resource "PyYAML" do
+    url "https://files.pythonhosted.org/packages/8d/c9/e5be955a117a1ac548cdd31e37e8fd7b02ce987f9655f5c7563c656d5dcb/PyYAML-5.2.tar.gz"
+    sha256 "c0ee8eca2c582d29c3c2ec6e2c4f703d1b7f1fb10bc72317355a746057e7346c"
+  end
+
   resource "simplejson" do
-    url "https://files.pythonhosted.org/packages/source/s/simplejson/simplejson-3.13.2.tar.gz"
-    sha256 "4c4ecf20e054716cc1e5a81cadc44d3f4027108d8dd0861d8b1e3bd7a32d4f0a"
+    url "https://files.pythonhosted.org/packages/98/87/a7b98aa9256c8843f92878966dc3d8d914c14aad97e2c5ce4798d5743e07/simplejson-3.17.0.tar.gz"
+    sha256 "2b4b2b738b3b99819a17feaf118265d0753d5536049ea570b3c43b51c4701e81"
   end
 
   def install
-    libnet = Formula["libnet"]
-    libmagic = Formula["libmagic"]
-
-    ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python2.7/site-packages"
+    xy = Language::Python.major_minor_version "python3"
+    ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python#{xy}/site-packages"
     resources.each do |r|
       r.stage do
-        system "python", *Language::Python.setup_install_args(libexec/"vendor")
+        system "python3", *Language::Python.setup_install_args(libexec/"vendor")
       end
     end
+
+    jansson = Formula["jansson"]
+    libmagic = Formula["libmagic"]
+    libnet = Formula["libnet"]
 
     args = %W[
       --disable-dependency-tracking
@@ -51,34 +56,15 @@ class Suricata < Formula
       --prefix=#{prefix}
       --sysconfdir=#{etc}
       --localstatedir=#{var}
-      --with-libnet-includes=#{libnet.opt_include}
-      --with-libnet-libs=#{libnet.opt_lib}
+      --with-libjansson-includes=#{jansson.opt_include}
+      --with-libjansson-libraries=#{jansson.opt_lib}
       --with-libmagic-includes=#{libmagic.opt_include}
       --with-libmagic-libraries=#{libmagic.opt_lib}
+      --with-libnet-includes=#{libnet.opt_include}
+      --with-libnet-libraries=#{libnet.opt_lib}
+      --enable-ipfw
     ]
 
-    args << "--enable-lua" if build.with? "lua"
-    args << "--enable-luajit" if build.with? "luajit"
-
-    if build.with? "geoip"
-      geoip = Formula["geoip"]
-      args << "--enable-geoip"
-      args << "--with-libgeoip-includes=#{geoip.opt_include}"
-      args << "--with-libgeoip-libs=#{geoip.opt_lib}"
-    end
-
-    if build.with? "jansson"
-      jansson = Formula["jansson"]
-      args << "--with-libjansson-includes=#{jansson.opt_include}"
-      args << "--with-libjansson-libraries=#{jansson.opt_lib}"
-    end
-
-    if build.with? "hiredis"
-      hiredis = Formula["hiredis"]
-      args << "--enable-hiredis"
-      args << "--with-libhiredis-includes=#{hiredis.opt_include}"
-      args << "--with-libhiredis-libraries=#{hiredis.opt_lib}"
-    end
     system "./configure", *args
     system "make", "install-full"
 

@@ -1,41 +1,70 @@
 class Nomad < Formula
   desc "Distributed, Highly Available, Datacenter-Aware Scheduler"
   homepage "https://www.nomadproject.io"
-  url "https://github.com/hashicorp/nomad/archive/v0.8.3.tar.gz"
-  sha256 "af1aee7bd182a656c846a710b262318b7a10bb31671843697f302606a758fe04"
+  url "https://github.com/hashicorp/nomad/archive/v0.10.4.tar.gz"
+  sha256 "8f216520622da094327caa5b6e27e0298bbd68778c7b99f436a16d6391110f99"
   head "https://github.com/hashicorp/nomad.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "ca31c4ffe06992ed2e20ae5450b663c295e9996966cee3bdc58c596e06010e12" => :high_sierra
-    sha256 "1ce7c627de4b3ea61b05a750cf7264d7cbb6f51b0a6dde9df9a0153dbb013845" => :sierra
-    sha256 "86038847277661309c15d6edc9be8f01b02a22af7c866ef227ce7e1a33c8f243" => :el_capitan
+    sha256 "c187e3f96403347c4c269493ad41408902572af7019e7ddf6d4eb8ba5d9819a6" => :catalina
+    sha256 "4675264244cd456751a363874c4ed427cadf7930cbc024a53b1abcb8818e2eee" => :mojave
+    sha256 "fa3f349e642ecc9c15b94668844e78cb39fd18390b2603d8c79cf39d21d72952" => :high_sierra
   end
-
-  option "with-dynamic", "Build dynamic binary with CGO_ENABLED=1"
 
   depends_on "go" => :build
 
   def install
     ENV["GOPATH"] = buildpath
-    (buildpath/"src/github.com/hashicorp/nomad").install buildpath.children
-    cd "src/github.com/hashicorp/nomad" do
-      ENV["CGO_ENABLED"] = "1" if build.with? "dynamic"
+    src = buildpath/"src/github.com/hashicorp/nomad"
+    src.install buildpath.children
+    src.cd do
       system "go", "build", "-tags", "ui", "-o", bin/"nomad"
       prefix.install_metafiles
     end
   end
 
+  plist_options :manual => "nomad agent -dev"
+
+  def plist; <<~EOS
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+      <dict>
+        <key>KeepAlive</key>
+        <dict>
+          <key>SuccessfulExit</key>
+          <false/>
+        </dict>
+        <key>Label</key>
+        <string>#{plist_name}</string>
+        <key>ProgramArguments</key>
+        <array>
+          <string>#{opt_bin}/nomad</string>
+          <string>agent</string>
+          <string>-dev</string>
+        </array>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>WorkingDirectory</key>
+        <string>#{var}</string>
+        <key>StandardErrorPath</key>
+        <string>#{var}/log/nomad.log</string>
+        <key>StandardOutPath</key>
+        <string>#{var}/log/nomad.log</string>
+      </dict>
+    </plist>
+  EOS
+  end
+
   test do
-    begin
-      pid = fork do
-        exec "#{bin}/nomad", "agent", "-dev"
-      end
-      sleep 10
-      ENV.append "NOMAD_ADDR", "http://127.0.0.1:4646"
-      system "#{bin}/nomad", "node-status"
-    ensure
-      Process.kill("TERM", pid)
+    pid = fork do
+      exec "#{bin}/nomad", "agent", "-dev"
     end
+    sleep 10
+    ENV.append "NOMAD_ADDR", "http://127.0.0.1:4646"
+    system "#{bin}/nomad", "node-status"
+  ensure
+    Process.kill("TERM", pid)
   end
 end

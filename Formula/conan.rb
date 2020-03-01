@@ -3,26 +3,26 @@ class Conan < Formula
 
   desc "Distributed, open source, package manager for C/C++"
   homepage "https://github.com/conan-io/conan"
-  url "https://github.com/conan-io/conan/archive/1.3.2.tar.gz"
-  sha256 "f75fd4470d306a99e3abcf435b186b2133b8306b675ea428dc8bf2fe43b598ef"
+  url "https://github.com/conan-io/conan/archive/1.22.2.tar.gz"
+  sha256 "8946803732cf435dab8100bbd16c682fe8ca9e0c7dc93708845d226fcd2581b9"
   head "https://github.com/conan-io/conan.git"
 
   bottle do
     cellar :any
-    sha256 "f33092443958bbb27e64ec3b6e3ad50f988209c6bbdf6c4722877826aaa97c1b" => :high_sierra
-    sha256 "124b6c49d2587f4590778f3fb5dee9271daa1dd5c141c40d47cf02414d4bee0d" => :sierra
-    sha256 "1e2090f62c5bebea863fcd7f22c7a923ec1e29595ce84920033bc6e9ca2f6033" => :el_capitan
+    sha256 "6b3d675090e53aa0030b57fcad42cdf7ed3cec169a4f82e048e77b8fd866befe" => :catalina
+    sha256 "a0f66c9297cb3b8355275cb155ef1e0f3bf36f67e07c496defa115c373ec5067" => :mojave
+    sha256 "1890b44353f00dea04054958ef54b2e2d3fdc396153ff3b6983e3be355026bcb" => :high_sierra
   end
 
   depends_on "pkg-config" => :build
   depends_on "libffi"
-  depends_on "openssl"
-  depends_on "python"
+  depends_on "openssl@1.1"
+  depends_on "python@3.8"
 
   def install
     venv = virtualenv_create(libexec, "python3")
     system libexec/"bin/pip", "install", "-v", "--no-binary", ":all:",
-                              "--ignore-installed", buildpath
+                              "--ignore-installed", "PyYAML==3.13", buildpath
     system libexec/"bin/pip", "uninstall", "-y", name
     venv.pip_install_and_link buildpath
   end

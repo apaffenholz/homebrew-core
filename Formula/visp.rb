@@ -1,26 +1,29 @@
 class Visp < Formula
   desc "Visual Servoing Platform library"
   homepage "https://visp.inria.fr/"
-  url "https://gforge.inria.fr/frs/download.php/latestfile/475/visp-3.1.0.tar.gz"
-  sha256 "2a1df8195b06f9a057bd4c7d987697be2fdcc9d169e8d550fcf68e5d7f129d96"
-  revision 1
+  url "https://gforge.inria.fr/frs/download.php/latestfile/475/visp-3.3.0.tar.gz"
+  sha256 "f2ed11f8fee52c89487e6e24ba6a31fa604b326e08fb0f561a22c877ebdb640d"
 
   bottle do
-    sha256 "2d916fcddfe30085b591e9a0e343bc2d14de281eb907c20279c054d64bf30305" => :high_sierra
-    sha256 "8e3ef1fde35fccc12e4c3bfb2e8615ce0150bd19c2c5bc4251a991d125392e6b" => :sierra
-    sha256 "c3476bb04f41c009a86afaa24c5f7943627b5696d8613b323afaaf7894b9e257" => :el_capitan
+    sha256 "24f64b9b820a392c62432528221f1dba2611c2436d5a7cf9c1e92326606d6c38" => :catalina
+    sha256 "e0d0c4d83bbde89938d123ec7e99f7f646c5131921d6205cd297b2b23270e7da" => :mojave
+    sha256 "c6b96a2730eb2eff71cf7dc541247e4cd19c09f121999912ffc0d5ae4c3dd1cf" => :high_sierra
   end
 
   depends_on "cmake" => :build
+  depends_on "pkg-config" => :build
   depends_on "eigen"
   depends_on "gsl"
   depends_on "jpeg"
   depends_on "libdc1394"
   depends_on "libpng"
   depends_on "opencv"
+  depends_on "pcl"
   depends_on "zbar"
 
   def install
+    ENV.cxx11
+
     sdk = MacOS::CLT.installed? ? "" : MacOS.sdk_path
 
     system "cmake", ".", "-DBUILD_DEMOS=OFF",
@@ -39,11 +42,11 @@ class Visp < Formula
                          "-DUSE_JPEG=ON",
                          "-DJPEG_INCLUDE_DIR=#{Formula["jpeg"].opt_include}",
                          "-DJPEG_LIBRARY=#{Formula["jpeg"].opt_lib}/libjpeg.dylib",
-                         "-DUSE_LAPACK=OFF",
+                         "-DUSE_LAPACK=ON",
                          "-DUSE_LIBUSB_1=OFF",
                          "-DUSE_OPENCV=ON",
                          "-DOpenCV_DIR=#{Formula["opencv"].opt_share}/OpenCV",
-                         "-DUSE_PCL=OFF",
+                         "-DUSE_PCL=ON",
                          "-DUSE_PNG=ON",
                          "-DPNG_PNG_INCLUDE_DIR=#{Formula["libpng"].opt_include}",
                          "-DPNG_LIBRARY_RELEASE=#{Formula["libpng"].opt_lib}/libpng.dylib",
@@ -63,7 +66,6 @@ class Visp < Formula
                          "-DUSE_ZLIB=ON",
                          "-DZLIB_INCLUDE_DIR=#{sdk}/usr/include",
                          "-DZLIB_LIBRARY_RELEASE=/usr/lib/libz.dylib",
-                         "-DWITH_LAPACK=OFF",
                          *std_cmake_args
     system "make", "install"
   end

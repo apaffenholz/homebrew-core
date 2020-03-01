@@ -1,17 +1,18 @@
 class Pspg < Formula
   desc "Unix pager optimized for psql"
   homepage "https://github.com/okbob/pspg"
-  url "https://github.com/okbob/pspg/archive/1.1.1.tar.gz"
-  sha256 "91fefbf18a07223e66db4f09ea01b4b14829945ce318c0bf39b6efad4afbd2db"
+  url "https://github.com/okbob/pspg/archive/2.6.6.tar.gz"
+  sha256 "2e353875557a0a09e2bf5e4c01f30175afd3e19bbf791e234731d32681c833ed"
   head "https://github.com/okbob/pspg.git"
 
   bottle do
     cellar :any
-    sha256 "6dbc8c9cc3b87569f4e3a601f17097209a0676d60b026cd9060a24d8851d1117" => :high_sierra
-    sha256 "470d3cd08eef06e253c34b0a592bf00906320d9a8934a12e2b62ed5c6506bac2" => :sierra
-    sha256 "ad347b5528c6e3cbc87adb65ece4f12eb62eb76ae214bfd85e969284d49e0103" => :el_capitan
+    sha256 "5999baa95e558d01847288277d0619c28cd8bf816916515fadad8a22502caa22" => :catalina
+    sha256 "dea6e4114c2671797725de8415dcd97f5e2dd604ed8c65597a18ee33a96c9075" => :mojave
+    sha256 "916b644ad413a1f68b47b6fe869b816f809967516744255840bdd84da079bc95" => :high_sierra
   end
 
+  depends_on "libpq"
   depends_on "ncurses"
   depends_on "readline"
 
@@ -26,7 +27,7 @@ class Pspg < Formula
       \\setenv PAGER pspg
       \\pset border 2
       \\pset linestyle unicode
-    EOS
+  EOS
   end
 
   test do

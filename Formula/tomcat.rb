@@ -1,19 +1,14 @@
 class Tomcat < Formula
   desc "Implementation of Java Servlet and JavaServer Pages"
   homepage "https://tomcat.apache.org/"
-  url "https://www.apache.org/dyn/closer.cgi?path=/tomcat/tomcat-9/v9.0.8/bin/apache-tomcat-9.0.8.tar.gz"
-  sha256 "1ceedf23f0203d218411280eca85775d7bfb4fbe2f12082d156cca7b4f7309fd"
+  url "https://www.apache.org/dyn/closer.lua?path=tomcat/tomcat-9/v9.0.31/bin/apache-tomcat-9.0.31.tar.gz"
+  mirror "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.31/bin/apache-tomcat-9.0.31.tar.gz"
+  sha256 "1b111d890f8c0b3f3eb7f8f8f557a8e163ef6b06bca3e262ba1062808467cb43"
+  revision 1
 
   bottle :unneeded
 
-  option "with-fulldocs", "Install full documentation locally"
-
-  depends_on :java => "1.8+"
-
-  resource "fulldocs" do
-    url "https://www.apache.org/dyn/closer.cgi?path=/tomcat/tomcat-9/v9.0.8/bin/apache-tomcat-9.0.8-fulldocs.tar.gz"
-    sha256 "c71812be5f6c383c62565942e748660eedb8d9fe8672e47fa9b8e3647a5c7d55"
-  end
+  depends_on "openjdk"
 
   def install
     # Remove Windows scripts
@@ -22,9 +17,7 @@ class Tomcat < Formula
     # Install files
     prefix.install %w[NOTICE LICENSE RELEASE-NOTES RUNNING.txt]
     libexec.install Dir["*"]
-    bin.install_symlink "#{libexec}/bin/catalina.sh" => "catalina"
-
-    (pkgshare/"fulldocs").install resource("fulldocs") if build.with? "fulldocs"
+    (bin/"catalina").write_env_script "#{libexec}/bin/catalina.sh", :JAVA_HOME => Formula["openjdk"].opt_prefix
   end
 
   plist_options :manual => "catalina run"
@@ -47,7 +40,7 @@ class Tomcat < Formula
         <true/>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do

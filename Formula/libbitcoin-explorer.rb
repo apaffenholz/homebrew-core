@@ -1,29 +1,25 @@
 class LibbitcoinExplorer < Formula
   desc "Bitcoin command-line tool"
   homepage "https://github.com/libbitcoin/libbitcoin-explorer"
-  url "https://github.com/libbitcoin/libbitcoin-explorer/archive/v3.5.0.tar.gz"
-  sha256 "630cffd577c0d10345b44ce8160f4604519b0ca69bf201f524f104c207b930aa"
-  revision 2
+  url "https://github.com/libbitcoin/libbitcoin-explorer/archive/v3.6.0.tar.gz"
+  sha256 "e1b3fa2723465f7366a6e8c55e14df53106e90b82cc977db638c78f9bc5c47db"
+  revision 3
 
   bottle do
-    sha256 "aae3ff770f5857bac91474ddbb6f1e82e82839e61dc568b21332fc33545fb39e" => :high_sierra
-    sha256 "57409051da543c57817a75d99448497b6e787e0d70c8ebccfcb5ca23b0750946" => :sierra
-    sha256 "fe5cc5e3dad6720b60318a672d3baa37fc14ebf7efb14befdb407e06e2f3bb31" => :el_capitan
+    sha256 "0a8f69aab37c3b987214c44dd82adecde519259f9d3a8ebfad092054af08b8d4" => :catalina
+    sha256 "cbd033b57c9da0039f32c0a350398ef201a6e3d731806f8f7e962bd67ce815d0" => :mojave
+    sha256 "1de14d42596d9f26fe0e85642077b234d06035e1be49d5d890c5a80a51b7dc63" => :high_sierra
   end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
   depends_on "libtool" => :build
   depends_on "pkg-config" => :build
-  depends_on "libbitcoin"
   depends_on "libbitcoin-client"
   depends_on "libbitcoin-network"
-  depends_on "zeromq"
 
   def install
     ENV.prepend_path "PKG_CONFIG_PATH", Formula["libbitcoin"].opt_libexec/"lib/pkgconfig"
-    ENV.prepend_path "PKG_CONFIG_PATH", Formula["libbitcoin-client"].opt_libexec/"lib/pkgconfig"
-    ENV.prepend_create_path "PKG_CONFIG_PATH", libexec/"lib/pkgconfig"
 
     system "./autogen.sh"
     system "./configure", "--disable-dependency-tracking",

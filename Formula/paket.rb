@@ -1,12 +1,12 @@
 class Paket < Formula
   desc "Dependency manager for .NET with support for NuGet and Git repositories"
   homepage "https://fsprojects.github.io/Paket/"
-  url "https://github.com/fsprojects/Paket/releases/download/5.156.7/paket.exe"
-  sha256 "4c5810e2b5763f731d74bdd87595f0d1504baf9028a26645902ef21476ae8084"
+  url "https://github.com/fsprojects/Paket/releases/download/5.242.2/paket.exe"
+  sha256 "e7e27c3f648300d66c7f45ab66c4a9071741a81bb0473d45bd189b354c2ce694"
 
   bottle :unneeded
 
-  depends_on "mono" => :recommended
+  depends_on "mono"
 
   def install
     libexec.install "paket.exe"

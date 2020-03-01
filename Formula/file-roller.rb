@@ -1,27 +1,26 @@
 class FileRoller < Formula
   desc "GNOME archive manager"
   homepage "https://wiki.gnome.org/Apps/FileRoller"
-  url "https://download.gnome.org/sources/file-roller/3.28/file-roller-3.28.0.tar.xz"
-  sha256 "c17139b46dd4c566ae70a7e3cb930b16e46597c7f9931757fcab900e5015f696"
-  revision 1
+  url "https://download.gnome.org/sources/file-roller/3.32/file-roller-3.32.4.tar.xz"
+  sha256 "1b3b2cbfcb444e0d150bfd063add9d5181c8ab24f0593e5a8894399297214017"
 
   bottle do
-    sha256 "d7abde518cde71c0560862adee45af2d50ba7680f706969bd4336342a7348d8e" => :high_sierra
-    sha256 "837a8976176c65b2746324224cc839aa1d06e4acc5b33a1ea182569feaa589ea" => :sierra
-    sha256 "0b2ffcb564df4f03c429f8b8c0f7f19afe7e0e8f73a706471005fdff98a25dee" => :el_capitan
+    sha256 "8b17b99e5d48751f0bc6b6aca8f433b1a27b3b14dc491fc4b992f3ef93d3192c" => :catalina
+    sha256 "c2448cca2f099e780ba104dcf4277d9d61b2b66373b9da0052a0fb5c6ab7c5c2" => :mojave
+    sha256 "c4aedb8c7462a868b9957ad62e10ada5eefc25432105e2f9709b768e55ef3289" => :high_sierra
   end
 
+  depends_on "itstool" => :build
   depends_on "meson" => :build
-  depends_on "python" => :build
   depends_on "ninja" => :build
   depends_on "pkg-config" => :build
-  depends_on "itstool" => :build
-  depends_on "gtk+3"
-  depends_on "json-glib"
-  depends_on "libmagic"
-  depends_on "libarchive"
-  depends_on "hicolor-icon-theme"
+  depends_on "python" => :build
   depends_on "adwaita-icon-theme"
+  depends_on "gtk+3"
+  depends_on "hicolor-icon-theme"
+  depends_on "json-glib"
+  depends_on "libarchive"
+  depends_on "libmagic"
 
   def install
     ENV.append "CFLAGS", "-I#{Formula["libmagic"].opt_include}"

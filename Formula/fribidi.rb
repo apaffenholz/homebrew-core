@@ -1,22 +1,14 @@
 class Fribidi < Formula
   desc "Implementation of the Unicode BiDi algorithm"
   homepage "https://github.com/fribidi/fribidi"
-  url "https://github.com/fribidi/fribidi/releases/download/v1.0.2/fribidi-1.0.2.tar.bz2"
-  sha256 "bd6d1b530c4f6066f42461200ed6a31f2db8db208570ea4ccaab2b935e88832b"
+  url "https://github.com/fribidi/fribidi/releases/download/v1.0.8/fribidi-1.0.8.tar.bz2"
+  sha256 "94c7b68d86ad2a9613b4dcffe7bbeb03523d63b5b37918bdf2e4ef34195c1e6c"
 
   bottle do
     cellar :any
-    sha256 "139434ded4f6455fef216b33fb5cdc713cc1692f457ae56058ff512a5d64abc0" => :high_sierra
-    sha256 "0588e9731bf34db77b4bfc4bea72d8d84196bebc9badb2edce6d8c37f02159de" => :sierra
-    sha256 "ad4d83225cc078de5a60c3d5d76224761a712c6c521f548e9913ceea0b62c051" => :el_capitan
-  end
-
-  # Remove for > 1.0.2
-  # Upstream commit from 19 Mar 2018 "Revert 'Add an option to disable building
-  # documentation'"; see https://github.com/fribidi/fribidi/commit/095d885
-  patch do
-    url "https://raw.githubusercontent.com/Homebrew/formula-patches/f9c1d7d/fribidi/fix-docs.diff"
-    sha256 "990777213ff47cfbf06f0342f66e84783bf5eec80419ff1582dd189352ef5f73"
+    sha256 "69403ab9b10c4e20ebbf4ace214fa89e2c055b9f7731871553e62a7065e31aaf" => :catalina
+    sha256 "b0084d49f6e420509f1f7d0ce0fb84be563302f1b907c12f1f8f53bda2b5ab15" => :mojave
+    sha256 "3b33566bbc8df22d57ee931b5de5fd59ab2d76058c26e20000deffaace90ffe2" => :high_sierra
   end
 
   def install

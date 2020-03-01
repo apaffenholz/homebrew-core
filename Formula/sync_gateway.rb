@@ -1,36 +1,30 @@
 class SyncGateway < Formula
   desc "Make Couchbase Server a replication endpoint for Couchbase Lite"
-  homepage "http://docs.couchbase.com/sync-gateway"
+  homepage "https://docs.couchbase.com/sync-gateway"
   url "https://github.com/couchbase/sync_gateway.git",
-      :tag => "1.3.1",
-      :revision => "660b1c92fadce1a9c7e692dfe7c5b741772d1dd2"
+      :tag      => "2.7.0",
+      :revision => "a52b9c42ba1d29d948255dd6a8a976d655bf6d32"
   head "https://github.com/couchbase/sync_gateway.git"
 
   bottle do
     cellar :any_skip_relocation
-    rebuild 1
-    sha256 "6a5b069076f54e606c30b2c01d4e3e66e136c10b101d94ce615c924964d358eb" => :high_sierra
-    sha256 "cc2e8b1e7e5145681ff264d3d7fe53445ae01331420221a833e148dbe8126192" => :sierra
-    sha256 "1f72bc0d2674b891e8107d3c6fc21a13d6d86e47ba5077eed63245735e31ac7e" => :el_capitan
+    sha256 "a416ddb7c6d6187d0d1bd64404e42c3a8efb51872d81b96445756a208fbd08a7" => :catalina
+    sha256 "e7f4d546225f5191290425cee6e69cfa9477cedc4d681f638a0bc50e950f2323" => :mojave
+    sha256 "ab4fe6072b033c1106064a8bb4246e863a10a38a6d8131bc837df36aa5a909ea" => :high_sierra
   end
 
-  depends_on "go" => :build
   depends_on "gnupg" => :build
+  depends_on "go" => :build
 
   resource "depot_tools" do
     url "https://chromium.googlesource.com/chromium/tools/depot_tools.git",
-        :revision => "935b93fb9bf367510eece7db8ee3e383b101c36d"
+        :revision => "b97d193baafa7343cc869e2b48d3bffec46a0c31"
   end
 
   def install
     # Cache the vendored Go dependencies gathered by depot_tools' `repo` command
-    repo_cache = HOMEBREW_CACHE/"repo_cache/#{name}/.repo"
+    repo_cache = buildpath/"repo_cache/#{name}/.repo"
     repo_cache.mkpath
-
-    # Remove for > 1.3.1
-    # Backports from HEAD the upgrade from Git protocol to https
-    # See https://github.com/couchbase/sync_gateway/commit/1cf0399
-    inreplace "manifest/default.xml", "git://", "https://" unless build.head?
 
     (buildpath/"depot_tools").install resource("depot_tools")
     ENV.prepend_path "PATH", buildpath/"depot_tools"
@@ -50,6 +44,7 @@ class SyncGateway < Formula
       system "repo", "init", "-u", stable.url, "-m", "manifest/default.xml"
       cp manifest, ".repo/manifest.xml"
       system "repo", "sync"
+      ENV["SG_EDITION"] = "CE"
       system "sh", "build.sh", "-v"
       mv "godeps/bin", prefix
     end

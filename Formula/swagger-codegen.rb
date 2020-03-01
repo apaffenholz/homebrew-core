@@ -1,19 +1,19 @@
 class SwaggerCodegen < Formula
   desc "Generate clients, server stubs, and docs from an OpenAPI spec"
   homepage "https://swagger.io/swagger-codegen/"
-  url "https://github.com/swagger-api/swagger-codegen/archive/v2.3.1.tar.gz"
-  sha256 "0f86c36a5961b0212f3f3b28650d6c6545b281ce1405411edee8505dfbb4073e"
+  url "https://github.com/swagger-api/swagger-codegen/archive/v3.0.16.tar.gz"
+  sha256 "3847118d98d348400d5921a54744f01d54399519c9c70ea23a6fc406478d5802"
   head "https://github.com/swagger-api/swagger-codegen.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "81b19c10e0cb6e02ae83ecd1a572f72e06ba78dfa8c086f061e81d50b88c3153" => :high_sierra
-    sha256 "b1796894e7d5ebed8e78ab6919c34c8cee32c7076d3b17e0f172cae9c08cfc87" => :sierra
-    sha256 "4bf5f529fad00809762b99a5fb93e52560f7509cdb7b074c2d02a5081f8bbbd5" => :el_capitan
+    sha256 "d5be8c560c7344b211cb07ff8468ad94d74ffcb1c693b5a78b8e6f97dc01bec7" => :catalina
+    sha256 "9f09272129619a9b99d3f6ea0ab689c86ba1fe70c8b888b5c8536e0321b258ef" => :mojave
+    sha256 "62fd44f3b04f25779eca2f82bb2e93aaaa42f5bdc575a916b0a801ae845f91a8" => :high_sierra
   end
 
-  depends_on :java => "1.8"
   depends_on "maven" => :build
+  depends_on :java => "1.8"
 
   def install
     # Need to set JAVA_HOME manually since maven overrides 1.8 with 1.7+
@@ -28,7 +28,7 @@ class SwaggerCodegen < Formula
   test do
     (testpath/"minimal.yaml").write <<~EOS
       ---
-      swagger: '2.0'
+      openapi: 3.0.0
       info:
         version: 0.0.0
         title: Simple API
@@ -39,6 +39,7 @@ class SwaggerCodegen < Formula
               200:
                 description: OK
     EOS
-    system "#{bin}/swagger-codegen", "generate", "-i", "minimal.yaml", "-l", "swagger"
+    system "#{bin}/swagger-codegen", "generate", "-i", "minimal.yaml", "-l", "html"
+    assert_includes File.read(testpath/"index.html"), "<h1>Simple API</h1>"
   end
 end

@@ -1,16 +1,20 @@
 class WildflyAs < Formula
   desc "Managed application runtime for building applications"
-  homepage "http://wildfly.org/"
-  url "https://download.jboss.org/wildfly/12.0.0.Final/wildfly-12.0.0.Final.tar.gz"
-  sha256 "42fa41b25a2cbf4782f78fd8c4d537a06acfa60688fcc0ece9299f140c76afe0"
+  homepage "https://wildfly.org/"
+  url "https://download.jboss.org/wildfly/18.0.1.Final/wildfly-18.0.1.Final.tar.gz"
+  sha256 "54498e9c16b29c7f0a2cbab91edab6dfb9e2002259ee07c6d1247c23dc0cbb6c"
+  revision 1
 
   bottle :unneeded
 
-  depends_on :java => "1.8+"
+  depends_on "openjdk"
 
   def install
     rm_f Dir["bin/*.bat"]
     rm_f Dir["bin/*.ps1"]
+
+    inreplace "bin/standalone.sh", /JAVA="[^"]*"/, "JAVA='#{Formula["openjdk"].opt_bin}/java'"
+
     libexec.install Dir["*"]
     mkdir_p libexec/"standalone/log"
   end
@@ -21,7 +25,7 @@ class WildflyAs < Formula
     You may want to add the following to your .bash_profile:
       export JBOSS_HOME=#{opt_libexec}
       export PATH=${PATH}:${JBOSS_HOME}/bin
-    EOS
+  EOS
   end
 
   plist_options :manual => "#{HOMEBREW_PREFIX}/opt/wildfly-as/libexec/bin/standalone.sh --server-config=standalone.xml"
@@ -54,11 +58,35 @@ class WildflyAs < Formula
       </dict>
     </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do
     ENV["JBOSS_HOME"] = opt_libexec
     system "#{opt_libexec}/bin/standalone.sh --version | grep #{version}"
+
+    server = TCPServer.new(0)
+    port = server.addr[1]
+    server.close
+
+    pidfile = testpath/"pidfile"
+    ENV["LAUNCH_JBOSS_IN_BACKGROUND"] = "true"
+    ENV["JBOSS_PIDFILE"] = pidfile
+
+    mkdir testpath/"standalone"
+    mkdir testpath/"standalone/deployments"
+    cp_r libexec/"standalone/configuration", testpath/"standalone"
+    fork do
+      exec opt_libexec/"bin/standalone.sh", "--server-config=standalone.xml", "-Djboss.http.port=#{port}", "-Djboss.server.base.dir=#{testpath}/standalone"
+    end
+    sleep 10
+
+    begin
+      system "curl", "-X", "GET", "localhost:#{port}/"
+      output = shell_output("curl -s -X GET localhost:#{port}")
+      assert_match "Welcome to WildFly", output
+    ensure
+      Process.kill "SIGTERM", pidfile.read.to_i
+    end
   end
 end

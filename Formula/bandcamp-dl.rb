@@ -6,16 +6,17 @@ class BandcampDl < Formula
   url "https://github.com/iheanyi/bandcamp-dl/archive/v0.0.8-12.tar.gz"
   version "0.0.8-12"
   sha256 "3252f52780f280ba18818d40cda1c89bdb99ee33d7911320ec2ce4c374df2d6b"
+  revision 2
   head "https://github.com/iheanyi/bandcamp-dl.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "0346f58d1cdb90e1b07be40700e6de28dc600c5c85b49d37e35c366ce64e4c09" => :high_sierra
-    sha256 "6b7c23677aca11282f3a7ca7d2f2ffb659d8a48b0abd578c73cb70dd449ffb2a" => :sierra
-    sha256 "d0be34694e3fa510cc7da7e318770fc2fe1880da4e2d891f11c0cd17face9dab" => :el_capitan
+    sha256 "fe3d57c5f55bfa6ffda246483c8b5bbd52c26ab870822587a72e6c3b0f76e04e" => :catalina
+    sha256 "6ad6b1d51e051049a4a48d095ebaf7235cfa028101b981885a2a142c08ebedb6" => :mojave
+    sha256 "4976e998158abd58da8af58a171ce4cfe942700ba149aa3541d21dd6ca318543" => :high_sierra
   end
 
-  depends_on "python"
+  depends_on "python@3.8"
 
   resource "Unidecode" do
     url "https://files.pythonhosted.org/packages/9d/36/49d0ee152b6a1631f03a541532c6201942430060aa97fe011cf01a2cce64/Unidecode-1.0.22.tar.gz"

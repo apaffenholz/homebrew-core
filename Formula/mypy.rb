@@ -2,58 +2,62 @@ class Mypy < Formula
   desc "Experimental optional static type checker for Python"
   homepage "http://www.mypy-lang.org/"
   url "https://github.com/python/mypy.git",
-      :tag => "v0.600",
-      :revision => "09288ffc4be301e6cfd05bf042cee8b780cd1ffd"
+      :tag      => "v0.761",
+      :revision => "f53b718bdf5935443332a43d8c1b448af8b80b57"
   head "https://github.com/python/mypy.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "8982e3d6c08f046b56478575be6c8c81d6eb5ed1984baabc6826209b56e0816a" => :high_sierra
-    sha256 "aac7549f940508b5d85ea01ddc657be7f8b68fdca47e06355af1dd585a59a9fc" => :sierra
-    sha256 "7d4eed148c40306517122d7001a1a429fd67a5a9879ee6e31a9f55bcfee64f39" => :el_capitan
+    sha256 "2625abd9cb5941a377749abd9b2972ec4bc77439aa8a16ed85c268223d89c0f7" => :catalina
+    sha256 "cc7191a0bd7e5aecb8f03e222cd11504b836e08a3821545a0513f6cdffb69c3f" => :mojave
+    sha256 "4d0703b4a0b24c2bd9ddccc6325f4c32fadb4d64052196eca601bf61810de845" => :high_sierra
   end
 
-  option "without-sphinx-doc", "Don't build documentation"
-
-  deprecated_option "without-docs" => "without-sphinx-doc"
-
+  depends_on "sphinx-doc" => :build
   depends_on "python"
-  depends_on "sphinx-doc" => [:build, :recommended]
 
   resource "psutil" do
-    url "https://files.pythonhosted.org/packages/14/a2/8ac7dda36eac03950ec2668ab1b466314403031c83a95c5efc81d2acf163/psutil-5.4.5.tar.gz"
-    sha256 "ebe293be36bb24b95cdefc5131635496e88b17fabbcf1e4bc9b5c01f5e489cfe"
+    url "https://files.pythonhosted.org/packages/73/93/4f8213fbe66fc20cb904f35e6e04e20b47b85bee39845cc66a0bcf5ccdcb/psutil-5.6.7.tar.gz"
+    sha256 "ffad8eb2ac614518bbe3c0b8eb9dffdb3a8d2e3a7d5da51c5b974fb723a5c5aa"
   end
 
   resource "sphinx_rtd_theme" do
-    url "https://files.pythonhosted.org/packages/36/02/f402fc35ab83ae757a70c43c6d078726e555064a2f461037582fac935649/sphinx_rtd_theme-0.3.0.tar.gz"
-    sha256 "665135dfbdf8f1d218442458a18cf266444354b8c98eed93d1543f7e701cfdba"
+    url "https://files.pythonhosted.org/packages/ed/73/7e550d6e4cf9f78a0e0b60b9d93dba295389c3d271c034bf2ea3463a79f9/sphinx_rtd_theme-0.4.3.tar.gz"
+    sha256 "728607e34d60456d736cc7991fd236afb828b21b82f956c5ea75f94c8414040a"
   end
 
   resource "typed-ast" do
-    url "https://files.pythonhosted.org/packages/52/cf/2ebc7d282f026e21eed4987e42e10964a077c13cfc168b42f3573a7f178c/typed-ast-1.1.0.tar.gz"
-    sha256 "57fe287f0cdd9ceaf69e7b71a2e94a24b5d268b35df251a88fef5cc241bf73aa"
+    url "https://files.pythonhosted.org/packages/34/de/d0cfe2ea7ddfd8b2b8374ed2e04eeb08b6ee6e1e84081d151341bba596e5/typed_ast-1.4.0.tar.gz"
+    sha256 "66480f95b8167c9c5c5c87f32cf437d585937970f3fc24386f313a4c97b44e34"
+  end
+
+  resource "mypy_extensions" do
+    url "https://files.pythonhosted.org/packages/63/60/0582ce2eaced55f65a4406fc97beba256de4b7a95a0034c6576458c6519f/mypy_extensions-0.4.3.tar.gz"
+    sha256 "2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"
+  end
+
+  resource "typing_extensions" do
+    url "https://files.pythonhosted.org/packages/e7/dd/f1713bc6638cc3a6a23735eff6ee09393b44b96176d3296693ada272a80b/typing_extensions-3.7.4.1.tar.gz"
+    sha256 "091ecc894d5e908ac75209f10d5b4f118fbdb2eb1ede6a63544054bb1edb41f2"
   end
 
   def install
     xy = Language::Python.major_minor_version "python3"
 
-    if build.with? "sphinx-doc"
-      # https://github.com/python/mypy/issues/2593
-      version_static = buildpath/"mypy/version_static.py"
-      version_static.write "__version__ = '#{version}'\n"
-      inreplace "docs/source/conf.py", "mypy.version", "mypy.version_static"
+    # https://github.com/python/mypy/issues/2593
+    version_static = buildpath/"mypy/version_static.py"
+    version_static.write "__version__ = '#{version}'\n"
+    inreplace "docs/source/conf.py", "mypy.version", "mypy.version_static"
 
-      (buildpath/"docs/sphinx_rtd_theme").install resource("sphinx_rtd_theme")
-      # Inject sphinx_rtd_theme's path into sys.path
-      inreplace "docs/source/conf.py",
-                "sys.path.insert(0, os.path.abspath('../..'))",
-                "sys.path[:0] = [os.path.abspath('../..'), os.path.abspath('../sphinx_rtd_theme')]"
-      system "make", "-C", "docs", "html"
-      doc.install Dir["docs/build/html/*"]
+    (buildpath/"docs/sphinx_rtd_theme").install resource("sphinx_rtd_theme")
+    # Inject sphinx_rtd_theme's path into sys.path
+    inreplace "docs/source/conf.py",
+              "sys.path.insert(0, os.path.abspath('../..'))",
+              "sys.path[:0] = [os.path.abspath('../..'), os.path.abspath('../sphinx_rtd_theme')]"
+    system "make", "-C", "docs", "html"
+    doc.install Dir["docs/build/html/*"]
 
-      rm version_static
-    end
+    rm version_static
 
     ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python#{xy}/site-packages"
     resources.each do |r|
@@ -63,6 +67,7 @@ class Mypy < Formula
     end
 
     ENV.prepend_create_path "PYTHONPATH", libexec/"lib/python#{xy}/site-packages"
+    ENV["MYPY_USE_MYPYC"] = "1"
     system "python3", *Language::Python.setup_install_args(libexec)
 
     bin.install Dir[libexec/"bin/*"]

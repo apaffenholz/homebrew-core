@@ -1,31 +1,17 @@
 class Zabbix < Formula
   desc "Availability and monitoring solution"
   homepage "https://www.zabbix.com/"
-  url "https://downloads.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/3.4.8/zabbix-3.4.8.tar.gz"
-  sha256 "cec14993d1ec2c9d8c51f6608c9408620f27174db92edc2347bafa7b841ccc07"
+  url "https://downloads.sourceforge.net/project/zabbix/ZABBIX%20Latest%20Stable/4.4.6/zabbix-4.4.6.tar.gz"
+  sha256 "22bb28e667424ad4688f47732853f4241df0e78a7607727b043d704ba726ae0e"
 
   bottle do
-    sha256 "469f7d8a02308103faa0e1134dcd9fd6531e51c3ad8f580c15c7cb3af20be190" => :high_sierra
-    sha256 "bab5f42c0cae540c05b753296208cf669ffdac61a7b3a3a9cc8f776920e5697d" => :sierra
-    sha256 "f6993764ccaf70ceb9059cf5fdccb3691975f17c074b51b103b01b700acfa663" => :el_capitan
+    sha256 "5b6604bbc81948ff42ca1653f9ab9aaded21637379e966c5e3384ebff5d76eeb" => :catalina
+    sha256 "928e0dfde5c0b913e4959988864828ae64bf3caf053014a9a1667fb933af1a14" => :mojave
+    sha256 "fe5f55c5ebf3f7ff3e4f4c4768540882cda85cd930d56d9edec76bc8454d890f" => :high_sierra
   end
 
-  option "with-mysql", "Use Zabbix Server with MySQL library instead PostgreSQL."
-  option "with-sqlite", "Use Zabbix Server with SQLite library instead PostgreSQL."
-  option "without-server-proxy", "Install only the Zabbix Agent without Server and Proxy."
-
-  deprecated_option "agent-only" => "without-server-proxy"
-
-  depends_on "openssl"
+  depends_on "openssl@1.1"
   depends_on "pcre"
-
-  if build.with? "server-proxy"
-    depends_on "mysql" => :optional
-    depends_on "postgresql" if build.without? "mysql"
-    depends_on "fping"
-    depends_on "libevent"
-    depends_on "libssh2"
-  end
 
   def brewed_or_shipped(db_config)
     brewed_db_config = "#{HOMEBREW_PREFIX}/bin/#{db_config}"
@@ -42,40 +28,16 @@ class Zabbix < Formula
       --enable-agent
       --with-iconv=#{sdk}/usr
       --with-libpcre=#{Formula["pcre"].opt_prefix}
-      --with-openssl=#{Formula["openssl"].opt_prefix}
+      --with-openssl=#{Formula["openssl@1.1"].opt_prefix}
     ]
 
-    if build.with? "server-proxy"
-      args += %w[
-        --enable-server
-        --enable-proxy
-        --enable-ipv6
-        --with-net-snmp
-        --with-libcurl
-        --with-ssh2
-      ]
-
-      if build.with? "mysql"
-        args << "--with-mysql=#{brewed_or_shipped("mysql_config")}"
-      elsif build.with? "sqlite"
-        args << "--with-sqlite3"
-      else
-        args << "--with-postgresql=#{brewed_or_shipped("pg_config")}"
-      end
-    end
-
-    if MacOS.version == :el_capitan && MacOS::Xcode.installed? && MacOS::Xcode.version >= "8.0"
+    if MacOS.version == :el_capitan && MacOS::Xcode.version >= "8.0"
       inreplace "configure", "clock_gettime(CLOCK_REALTIME, &tp);",
                              "undefinedgibberish(CLOCK_REALTIME, &tp);"
     end
 
     system "./configure", *args
     system "make", "install"
-
-    if build.with? "server-proxy"
-      db = build.with?("mysql") ? "mysql" : "postgresql"
-      pkgshare.install "frontends/php", "database/#{db}"
-    end
   end
 
   test do

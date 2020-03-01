@@ -1,12 +1,13 @@
 class ApacheGeode < Formula
   desc "In-memory Data Grid for fast transactional data processing"
   homepage "https://geode.apache.org/"
-  url "https://www.apache.org/dyn/closer.cgi?path=geode/1.6.0/apache-geode-1.6.0.tgz"
-  sha256 "79e8d81d058b1c4edd5fb414ff30ac530f7913b978f5abc899c353fcb06e5ef3"
+  url "https://www.apache.org/dyn/closer.lua?path=geode/1.11.0/apache-geode-1.11.0.tgz"
+  mirror "https://archive.apache.org/dist/geode/1.11.0/apache-geode-1.11.0.tgz"
+  mirror "https://www.apache.org/dist/geode/1.11.0/apache-geode-1.11.0.tgz"
+  sha256 "59bc86db88ccba3780c6fc44a91ece98fe93c69c281a10902efefd816b6f7afe"
 
   bottle :unneeded
 
-  # Geode does not work with Java 1.9 (see https://issues.apache.org/jira/browse/GEODE-3)
   depends_on :java => "1.8"
 
   def install
@@ -17,11 +18,10 @@ class ApacheGeode < Formula
   end
 
   test do
-    begin
-      output = shell_output("#{bin}/gfsh start locator --dir #{testpath} --name=geode_locator_brew_test")
-      assert_match /Cluster configuration service is up and running/, output
-    ensure
-      quiet_system "pkill", "-9", "-f", "geode_locator_brew_test"
-    end
+    flags = "--dir #{testpath} --name=geode_locator_brew_test"
+    output = shell_output("#{bin}/gfsh start locator #{flags}")
+    assert_match "Cluster configuration service is up and running", output
+  ensure
+    quiet_system "pkill", "-9", "-f", "geode_locator_brew_test"
   end
 end

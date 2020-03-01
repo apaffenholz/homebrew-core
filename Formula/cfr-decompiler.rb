@@ -1,17 +1,21 @@
 class CfrDecompiler < Formula
   desc "Yet Another Java Decompiler"
-  homepage "http://www.benf.org/other/cfr/"
-  url "http://www.benf.org/other/cfr/cfr_0_128.jar"
-  sha256 "3d6adb020c842cc8cb4198e7b38f256363987ba86fdb0272c1a7dcd08c0bbd26"
+  homepage "https://www.benf.org/other/cfr/"
+  url "https://www.benf.org/other/cfr/cfr-0.148.jar"
+  sha256 "1407f91fe7f94ff700cc1c8d546986a3fc2554273f07bae664bd58b0d85fd012"
+  revision 1
 
   bottle :unneeded
 
-  depends_on :java => "1.6+"
+  depends_on "openjdk"
 
   def install
-    jar_version = version.to_s.tr(".", "_")
-    libexec.install "cfr_#{jar_version}.jar"
-    bin.write_jar_script libexec/"cfr_#{jar_version}.jar", "cfr-decompiler"
+    libexec.install "cfr-#{version}.jar"
+    (bin/"cfr-decompiler").write <<~EOS
+      #!/bin/bash
+      export JAVA_HOME="${JAVA_HOME:-#{Formula["openjdk"].opt_prefix}}"
+      exec "${JAVA_HOME}/bin/java" -jar "#{libexec}/cfr-#{version}.jar" "$@"
+    EOS
   end
 
   test do
@@ -28,7 +32,7 @@ class CfrDecompiler < Formula
       }
     EOS
     (testpath/"T.java").write fixture
-    system "javac", "T.java"
+    system "#{Formula["openjdk"].bin}/javac", "T.java"
     output = pipe_output("#{bin}/cfr-decompiler T.class")
     assert_match fixture, output
   end

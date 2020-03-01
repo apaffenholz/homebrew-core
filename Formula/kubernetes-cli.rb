@@ -2,33 +2,32 @@ class KubernetesCli < Formula
   desc "Kubernetes command-line interface"
   homepage "https://kubernetes.io/"
   url "https://github.com/kubernetes/kubernetes.git",
-      :tag => "v1.10.1",
-      :revision => "d4ab47518836c750f9949b9e0d387f20fb92260b"
+      :tag      => "v1.17.3",
+      :revision => "06ad960bfd03b39c8310aaf92d1e7c12ce618213"
   head "https://github.com/kubernetes/kubernetes.git"
 
   bottle do
-    sha256 "5b69f34a4c50c771f9d8c97b7812dbf478fa069ff03fde474bb358cba657978b" => :high_sierra
-    sha256 "cbb1944906cece22dd07b44a583d1f1ec637b2bc87d8c3db638a8e5ceaaaca84" => :sierra
-    sha256 "494c0502d5370a80621b04a9e003c5c89f8623dca3ad8e30fcad7ea9f8d86198" => :el_capitan
+    cellar :any_skip_relocation
+    sha256 "e04158043da4f8573ab0a4c51e966291e8e19f710987e41e5e7561fa5c89e364" => :catalina
+    sha256 "5a1b0b2ccc3144be4818b09ce659d6a9b1aff349bddf1afdca95a251d24a820c" => :mojave
+    sha256 "0d90be2c608189355c8690b77969e22557eea89d33af03bc41f88c3de311c93a" => :high_sierra
   end
 
-  # kubernetes-cli will not support go1.10 until version 1.11.x
-  depends_on "go@1.9" => :build
+  depends_on "go" => :build
 
   def install
     ENV["GOPATH"] = buildpath
-    arch = MacOS.prefer_64_bit? ? "amd64" : "x86"
     dir = buildpath/"src/k8s.io/kubernetes"
     dir.install buildpath.children - [buildpath/".brew_home"]
 
     cd dir do
-      # Race condition still exists in OSX Yosemite
+      # Race condition still exists in OS X Yosemite
       # Filed issue: https://github.com/kubernetes/kubernetes/issues/34635
       ENV.deparallelize { system "make", "generated_files" }
 
       # Make binary
       system "make", "kubectl"
-      bin.install "_output/local/bin/darwin/#{arch}/kubectl"
+      bin.install "_output/local/bin/darwin/amd64/kubectl"
 
       # Install bash completion
       output = Utils.popen_read("#{bin}/kubectl completion bash")
@@ -53,6 +52,10 @@ class KubernetesCli < Formula
 
     version_output = shell_output("#{bin}/kubectl version --client 2>&1")
     assert_match "GitTreeState:\"clean\"", version_output
-    assert_match stable.instance_variable_get(:@resource).instance_variable_get(:@specs)[:revision], version_output if build.stable?
+    if build.stable?
+      assert_match stable.instance_variable_get(:@resource)
+                         .instance_variable_get(:@specs)[:revision],
+                   version_output
+    end
   end
 end

@@ -1,25 +1,33 @@
 class Nnn < Formula
-  desc "Free, fast, friendly file browser"
+  desc "Tiny, lightning fast, feature-packed file manager"
   homepage "https://github.com/jarun/nnn"
-  url "https://github.com/jarun/nnn/archive/v1.8.tar.gz"
-  sha256 "65c364a9797178e40ec7ec653b2cfa8e211e556b75250bf72eb5eea57f5e0cdc"
+  url "https://github.com/jarun/nnn/archive/v3.0.tar.gz"
+  sha256 "04db6d6710ce1232c779bf70137a86557e486614e20327717122bb63f36348f7"
+  head "https://github.com/jarun/nnn.git"
 
   bottle do
     cellar :any
-    sha256 "90682082109f2ad444092cdb113c648a057de6f5ce14063db4ce3ff0f9365807" => :high_sierra
-    sha256 "2ddd0a667b68025c2dca006cfed1e67ef84df8f6be6521d3640f070ffb7e9619" => :sierra
-    sha256 "f8ba6cdc1fa14c0e2cfd7539aafe2d15c7d03e74fd070d7bcb024e30806900f8" => :el_capitan
+    sha256 "8b409f0677ba59902d219d4b174b3e7ec7e273befb6dd63c69b3477151264122" => :catalina
+    sha256 "b48dbfde5162c222a98fe4077b3d906e60c794dcb8db240f00d5acaa801b065e" => :mojave
+    sha256 "2ba56614606510098df1b196e7191264f08f555dca1d7beaa6556718e08cb8d1" => :high_sierra
   end
 
   depends_on "readline"
 
+  uses_from_macos "ncurses"
+
   def install
     system "make", "install", "PREFIX=#{prefix}"
+
+    bash_completion.install "misc/auto-completion/bash/nnn-completion.bash"
+    zsh_completion.install "misc/auto-completion/zsh/_nnn"
+    fish_completion.install "misc/auto-completion/fish/nnn.fish"
   end
 
   test do
     # Testing this curses app requires a pty
     require "pty"
+
     PTY.spawn(bin/"nnn") do |r, w, _pid|
       w.write "q"
       assert_match testpath.realpath.to_s, r.read

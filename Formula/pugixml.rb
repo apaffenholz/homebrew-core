@@ -1,23 +1,20 @@
 class Pugixml < Formula
   desc "Light-weight C++ XML processing library"
   homepage "https://pugixml.org/"
-  url "https://github.com/zeux/pugixml/releases/download/v1.9/pugixml-1.9.tar.gz"
-  sha256 "d156d35b83f680e40fd6412c4455fdd03544339779134617b9b28d19e11fdba6"
+  url "https://github.com/zeux/pugixml/releases/download/v1.10/pugixml-1.10.tar.gz"
+  sha256 "55f399fbb470942410d348584dc953bcaec926415d3462f471ef350f29b5870a"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "53ad542db23961c7ed6e7e7e6974c54198823ddce6644ae172d1f798136a0218" => :high_sierra
-    sha256 "879ed1d86051a4230499b368e2a8d7b9ebcf5792ff0dd40aa711b311426bf6e1" => :sierra
-    sha256 "a8fe6aafdb9826497121f3b616f382a7447a04dc252770b0828de1e4b4c99b99" => :el_capitan
+    sha256 "ffcc56b93b63ac573480cdcafd859bdee76409e834e4e6b855c0ac4cfa9eb94c" => :catalina
+    sha256 "ee86188a54388e0644fd3f90e0319c8c734fb6ae254b23da609af17e1f579c9a" => :mojave
+    sha256 "2b5ce73035deb5e9557fca05fc6100c4a1c18acf33816316185d00d9bb2198fe" => :high_sierra
   end
-
-  option "with-shared", "Build shared instead of static library"
 
   depends_on "cmake" => :build
 
   def install
-    shared = build.with?("shared") ? "ON" : "OFF"
-    system "cmake", ".", "-DBUILD_SHARED_LIBS=#{shared}",
+    system "cmake", ".", "-DBUILD_SHARED_LIBS=OFF",
                          "-DBUILD_PKGCONFIG=ON", *std_cmake_args
     system "make", "install"
   end
@@ -41,9 +38,8 @@ class Pugixml < Formula
       <root>Hello world!</root>
     EOS
 
-    system ENV.cc, "test.cpp", "-o", "test", "-lstdc++",
-                               "-L#{Dir["#{lib}/pug*"].first}", "-lpugixml",
-                               "-I#{include.children.first}"
+    system ENV.cxx, "test.cpp", "-o", "test", "-I#{include}",
+                    "-L#{lib}", "-lpugixml"
     system "./test"
   end
 end

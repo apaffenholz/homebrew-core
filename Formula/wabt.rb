@@ -1,17 +1,19 @@
 class Wabt < Formula
   desc "Web Assembly Binary Toolkit"
   homepage "https://github.com/WebAssembly/wabt"
-  url "https://github.com/WebAssembly/wabt/archive/1.0.1.tar.gz"
-  sha256 "720a1e68eddbacc2106d4db8056460488c96a7ff1bf0f5ec8dd8424f7a457ce4"
+  url "https://github.com/WebAssembly/wabt.git",
+    :tag      => "1.0.13",
+    :revision => "7c80d05e37dc02870c680869ae3f04ac6d9637ee"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "456ff14ecd21adbe9c8c5947f984940bdf87a3a0707ca88264eec5a92570352e" => :high_sierra
-    sha256 "e0f6b5920135fadb829643738d1364a2eb2c13681832e2c63abb36e2eabb6c5a" => :sierra
-    sha256 "4a7ceb54efc5c65127dc488d5251c02b528ed6e88a395e72699c5e0aa952aca8" => :el_capitan
+    sha256 "11975b7122f6106a969064cd684e9a77d24443df26b873a225f48d8e1304fff9" => :catalina
+    sha256 "26d32821ca26815974d699a5665ce3406fb9373a9d8970d7349ef6e3aee18208" => :mojave
+    sha256 "5d028ba6b144571da2407e65351aebd93fabb84d453601971a4c5c02d3a51b17" => :high_sierra
   end
 
   depends_on "cmake" => :build
+  depends_on "python@3.8" => :build
 
   def install
     mkdir "build" do

@@ -1,24 +1,24 @@
 class Pstoedit < Formula
   desc "Convert PostScript and PDF files to editable vector graphics"
   homepage "http://www.pstoedit.net/"
-  url "https://downloads.sourceforge.net/project/pstoedit/pstoedit/3.71/pstoedit-3.71.tar.gz"
-  sha256 "0589cd22cd9c23dee12d9bc9f26760f872185d8a1fb72a05bc58f6b824cfbc95"
+  url "https://downloads.sourceforge.net/project/pstoedit/pstoedit/3.75/pstoedit-3.75.tar.gz"
+  sha256 "b7b5d8510b40a5b148f7751268712fcfd0c1ed2bb46f359f655b6fcdc53364cf"
 
   bottle do
-    sha256 "c153dec1a76f7d6a829276145552fc6dc3756322a3023a24506740ee128d9a23" => :high_sierra
-    sha256 "3f4a82c73fcc2c44bfaa043babe85b8a4190de731752a86a2db553fa18c5bc5d" => :sierra
-    sha256 "5b4de0d105ec879d80202d8c523e6052769316e29e7eb975f5e2b77b2fc369f4" => :el_capitan
+    sha256 "f048d902c088f0625c0c9e18d84b159493775b40e742812b040e7b517900260a" => :catalina
+    sha256 "1f3ec91e58d95e08081694b43e031ed83f13a73cecff15c55c532268282b0ad1" => :mojave
+    sha256 "22710dd8997d40cec3492c40960a9966b80b386bdbd3fed46515c66bb25053d7" => :high_sierra
   end
 
   depends_on "pkg-config" => :build
-  depends_on "plotutils"
   depends_on "ghostscript"
   depends_on "imagemagick"
-  depends_on "xz" if MacOS.version < :mavericks
+  depends_on "plotutils"
 
   def install
-    system "./configure", "--disable-debug", "--disable-dependency-tracking",
-                          "--prefix=#{prefix}"
+    ENV.cxx11
+
+    system "./configure", "--disable-dependency-tracking", "--prefix=#{prefix}"
     system "make", "install"
   end
 

@@ -1,23 +1,30 @@
 class FluentBit < Formula
   desc "Data Collector for IoT"
   homepage "https://github.com/fluent/fluent-bit"
-  url "https://github.com/fluent/fluent-bit/archive/v0.13.0.tar.gz"
-  sha256 "7e332b87a1684e1cea80a8f2dc6f0f53a0b3288563e976ed27459f33529a046a"
+  url "https://github.com/fluent/fluent-bit/archive/v1.3.7.tar.gz"
+  sha256 "e897949356855e2a7d1a71085c7c21653b7792ef137d19d665e7b5dcd8e4d46a"
   head "https://github.com/fluent/fluent-bit.git"
 
   bottle do
     cellar :any
-    sha256 "264c7f95dadd7cfd9ec6b6ca56280bec684c13b4900d1ac4262f31f2cdee6f71" => :high_sierra
-    sha256 "7490224c45bf5507e439d609dcf1180692519b54054b8b09a3142d8dce0c86ad" => :sierra
-    sha256 "38c32b3c477a7d152a4a412555b29551042be3f90db570cc7f074f51d5af1f04" => :el_capitan
+    sha256 "8dc7cc6f4ea7f040fc03263203311c81fb70bfd84a6c48c74014fcba0cf99e09" => :catalina
+    sha256 "10575536d5160aa640e23012a0e6c530fd3aedf1fc815f57eefe8c937f2e7b20" => :mojave
+    sha256 "1c94f930d468ce3727d1331697bda2b5660b323abdbf1e6cc1eab79e7ae69b95" => :high_sierra
   end
 
+  depends_on "bison" => :build
   depends_on "cmake" => :build
+  depends_on "flex" => :build
 
   conflicts_with "mbedtls", :because => "fluent-bit includes mbedtls libraries."
   conflicts_with "msgpack", :because => "fluent-bit includes msgpack libraries."
 
   def install
+    # Per https://luajit.org/install.html: If MACOSX_DEPLOYMENT_TARGET
+    # is not set then it's forced to 10.4, which breaks compile on Mojave.
+    # fluent-bit builds against a vendored Luajit.
+    ENV["MACOSX_DEPLOYMENT_TARGET"] = MacOS.version
+
     system "cmake", ".", "-DWITH_IN_MEM=OFF", *std_cmake_args
     system "make", "install"
   end

@@ -1,8 +1,8 @@
 class Grails < Formula
   desc "Web application framework for the Groovy language"
   homepage "https://grails.org"
-  url "https://github.com/grails/grails-core/releases/download/v3.3.5/grails-3.3.5.zip"
-  sha256 "b5840f3272b7bbec2c3b4c221b540e8d881ab463ff596d5ceb7b64bad892261d"
+  url "https://github.com/grails/grails-core/releases/download/v4.0.2/grails-4.0.2.zip"
+  sha256 "897496c61b6d87fb61e5adf3d0ba27783cb779c4492930d1c8ad7e603bf9c267"
 
   bottle :unneeded
 
@@ -15,7 +15,7 @@ class Grails < Formula
   def caveats; <<~EOS
     The GRAILS_HOME directory is:
       #{opt_libexec}
-    EOS
+  EOS
   end
 
   test do

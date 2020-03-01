@@ -1,14 +1,14 @@
 class Zsh < Formula
   desc "UNIX shell (command interpreter)"
   homepage "https://www.zsh.org/"
-  url "https://downloads.sourceforge.net/project/zsh/zsh/5.5.1/zsh-5.5.1.tar.xz"
-  mirror "https://www.zsh.org/pub/zsh-5.5.1.tar.xz"
-  sha256 "e1c38808fcbe0cc1344d55c9a758349f7ba1e317325b154621ac37eddac4aa80"
+  url "https://downloads.sourceforge.net/project/zsh/zsh/5.8/zsh-5.8.tar.xz"
+  mirror "https://www.zsh.org/pub/zsh-5.8.tar.xz"
+  sha256 "dcc4b54cc5565670a65581760261c163d720991f0d06486da61f8d839b52de27"
 
   bottle do
-    sha256 "5629f78ced1b1a592bfd13536d5e9f4c265e22cb825c40992c3eea6d71727c80" => :high_sierra
-    sha256 "a78193d233d74739539a258be269c8e66460984de44def032c1856f1a20bdeff" => :sierra
-    sha256 "306e6694538f7fff80f240a7d99156139a931f5fc8f13403a7b8c95fc588df09" => :el_capitan
+    sha256 "209d04a4d62f6162f1b6cf824d2c50b00b52cb812c04c1967e5b376573b5aef0" => :catalina
+    sha256 "c5c35657637c97132efbaa0fd8e2add568aaa62adfe66e7d19f961f8e9506da9" => :mojave
+    sha256 "029b8c6922f01bfd832dd0f4f940f99328d2495714c37c1dc7ef326d6fb1459e" => :high_sierra
   end
 
   head do
@@ -16,48 +16,33 @@ class Zsh < Formula
     depends_on "autoconf" => :build
   end
 
-  option "without-etcdir", "Disable the reading of Zsh rc files in /etc"
-  option "with-unicode9", "Build with Unicode 9 character width support"
-
-  deprecated_option "disable-etcdir" => "without-etcdir"
-
-  depends_on "gdbm" => :optional
-  depends_on "pcre" => :optional
+  depends_on "ncurses"
+  depends_on "pcre"
 
   resource "htmldoc" do
-    url "https://downloads.sourceforge.net/project/zsh/zsh-doc/5.5.1/zsh-5.5.1-doc.tar.xz"
-    mirror "https://www.zsh.org/pub/zsh-5.5.1-doc.tar.xz"
-    sha256 "41ce13a89a6bc7e709b6f110e54288d59f02ba2becd2646895d28188d4dd6283"
+    url "https://downloads.sourceforge.net/project/zsh/zsh-doc/5.8/zsh-5.8-doc.tar.xz"
+    mirror "https://www.zsh.org/pub/zsh-5.8-doc.tar.xz"
+    sha256 "9b4e939593cb5a76564d2be2e2bfbb6242509c0c56fd9ba52f5dba6cf06fdcc4"
   end
 
   def install
     system "Util/preconfig" if build.head?
 
-    args = %W[
-      --prefix=#{prefix}
-      --enable-fndir=#{pkgshare}/functions
-      --enable-scriptdir=#{pkgshare}/scripts
-      --enable-site-fndir=#{HOMEBREW_PREFIX}/share/zsh/site-functions
-      --enable-site-scriptdir=#{HOMEBREW_PREFIX}/share/zsh/site-scripts
-      --enable-runhelpdir=#{pkgshare}/help
-      --enable-cap
-      --enable-maildir-support
-      --enable-multibyte
-      --enable-zsh-secure-free
-      --with-tcsetpgrp
-    ]
-
-    args << "--disable-gdbm" if build.without? "gdbm"
-    args << "--enable-pcre" if build.with? "pcre"
-    args << "--enable-unicode9" if build.with? "unicode9"
-
-    if build.without? "etcdir"
-      args << "--disable-etcdir"
-    else
-      args << "--enable-etcdir=/etc"
-    end
-
-    system "./configure", *args
+    system "./configure", "--prefix=#{prefix}",
+                          "--enable-fndir=#{pkgshare}/functions",
+                          "--enable-scriptdir=#{pkgshare}/scripts",
+                          "--enable-site-fndir=#{HOMEBREW_PREFIX}/share/zsh/site-functions",
+                          "--enable-site-scriptdir=#{HOMEBREW_PREFIX}/share/zsh/site-scripts",
+                          "--enable-runhelpdir=#{pkgshare}/help",
+                          "--enable-cap",
+                          "--enable-maildir-support",
+                          "--enable-multibyte",
+                          "--enable-pcre",
+                          "--enable-zsh-secure-free",
+                          "--enable-unicode9",
+                          "--enable-etcdir=/etc",
+                          "--with-tcsetpgrp",
+                          "DL_EXT=bundle"
 
     # Do not version installation directories.
     inreplace ["Makefile", "Src/Makefile"],

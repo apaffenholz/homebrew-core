@@ -1,15 +1,16 @@
 class Certigo < Formula
   desc "Utility to examine and validate certificates in a variety of formats"
   homepage "https://github.com/square/certigo"
-  url "https://github.com/square/certigo/archive/v1.10.0.tar.gz"
-  sha256 "c16ad4ce33737cee291fa8828436f8e3095c70605fc303ff9631d082d731ebed"
+  url "https://github.com/square/certigo/archive/v1.11.0.tar.gz"
+  sha256 "2a0e7291c921f9e662743183d0a0695d7b34efb9972cda7f80cf3f9a292bcda0"
+  revision 1
   head "https://github.com/square/certigo.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "1a5e22415f9897fb8a8d39d48c96fe78183c1470b94bc089f52646c748130a2f" => :high_sierra
-    sha256 "f203d190704e21bee47733d556a14a7437c5003ddc0eba668a893a6fd6f78521" => :sierra
-    sha256 "9c76c9053f3bdaa1f0801a8ad5cb8a5e8486ad7f44fa66ada30829cd41865244" => :el_capitan
+    sha256 "efee4b49e80aad9ff55948101d6c88c82eb74b12c406b4da390f0fefd1a51755" => :catalina
+    sha256 "2ca887f300681f08214afb979083433186112f96a2fedcb3eb057d717817b0a6" => :mojave
+    sha256 "40d6b8062c075276db5a3119ff82b98ca12a36a2241817f0afc7b731bac8f27c" => :high_sierra
   end
 
   depends_on "go" => :build
@@ -17,6 +18,14 @@ class Certigo < Formula
   def install
     system "./build"
     bin.install "bin/certigo"
+
+    # Install bash completion
+    output = Utils.popen_read("#{bin}/certigo --completion-script-bash")
+    (bash_completion/"certigo").write output
+
+    # Install zsh completion
+    output = Utils.popen_read("#{bin}/certigo --completion-script-zsh")
+    (zsh_completion/"_certigo").write output
   end
 
   test do

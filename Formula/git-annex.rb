@@ -5,39 +5,55 @@ class GitAnnex < Formula
 
   desc "Manage files with git without checking in file contents"
   homepage "https://git-annex.branchable.com/"
-  url "https://hackage.haskell.org/package/git-annex-6.20180427/git-annex-6.20180427.tar.gz"
-  sha256 "bae55c449a1f9a12c8af7846ef8ebae9f692d9b8ea0c9535a0b2c2322b584d5e"
+  url "https://hackage.haskell.org/package/git-annex-7.20200219/git-annex-7.20200219.tar.gz"
+  sha256 "a8ac72fc4750e52a3419b69d23665e51e55fcf74f89eb6b47e395e891294fc5f"
   head "git://git-annex.branchable.com/"
 
   bottle do
-    sha256 "dbd01f8591f0c60a7c89c16add42e99f22cda876f974a352f113fd703bf75760" => :high_sierra
-    sha256 "3e3dc15b3b61c6cde7dbacf3acbff2862208c34551d7064e6179a0458f927fba" => :sierra
-    sha256 "914b7407d65237e90670060a95099fb3d31c35458e283ce6f329951e308c2d30" => :el_capitan
+    cellar :any
+    sha256 "84920d62612caae46817785314f3b7593904afd5818eaed6f35540339b0b07ee" => :catalina
+    sha256 "2df9cd0fadec10172238e03103b6fad92de34652a0f88ced7bba9c547f980af1" => :mojave
+    sha256 "54d2d67e39300ef280580ecc80da2c246bb20760843547dff369e66940882b9d" => :high_sierra
   end
 
-  option "with-git-union-merge", "Build the git-union-merge tool"
-
   depends_on "cabal-install" => :build
-  depends_on "ghc@8.2" => :build
+  depends_on "ghc@8.6" => :build
   depends_on "pkg-config" => :build
   depends_on "gsasl"
   depends_on "libmagic"
   depends_on "quvi"
-  depends_on "xdot" => :recommended
+  depends_on "xdot"
 
   def install
-    # Reported 28 Feb 2018 to aws upstream https://github.com/aristidb/aws/issues/244
-    install_cabal_package "--constraint", "http-conduit<2.3",
+    install_cabal_package "--constraint", "http-conduit>=2.3",
+                          "--constraint", "network>=2.6.3.0",
                           :using => ["alex", "happy", "c2hs"],
-                          :flags => ["s3", "webapp"] do
-      # this can be made the default behavior again once git-union-merge builds properly when bottling
-      if build.with? "git-union-merge"
-        system "make", "git-union-merge", "PREFIX=#{prefix}"
-        bin.install "git-union-merge"
-        system "make", "git-union-merge.1", "PREFIX=#{prefix}"
-      end
-    end
+                          :flags => ["s3", "webapp"]
     bin.install_symlink "git-annex" => "git-annex-shell"
+  end
+
+  plist_options :manual => "git annex assistant --autostart"
+
+  def plist; <<~EOS
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+      <dict>
+        <key>Label</key>
+        <string>#{plist_name}</string>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>KeepAlive</key>
+        <false/>
+        <key>ProgramArguments</key>
+        <array>
+          <string>#{opt_bin}/git-annex</string>
+          <string>assistant</string>
+          <string>--autostart</string>
+        </array>
+      </dict>
+    </plist>
+  EOS
   end
 
   test do
@@ -50,7 +66,7 @@ class GitAnnex < Formula
     system "git", "annex", "init"
     (testpath/"Hello.txt").write "Hello!"
     assert !File.symlink?("Hello.txt")
-    assert_match "add Hello.txt ok", shell_output("git annex add .")
+    assert_match /^add Hello.txt.*ok.*\(recording state in git\.\.\.\)/m, shell_output("git annex add .")
     system "git", "commit", "-a", "-m", "Initial Commit"
     assert File.symlink?("Hello.txt")
 

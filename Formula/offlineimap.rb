@@ -1,37 +1,50 @@
 class Offlineimap < Formula
   desc "Synchronizes emails between two repositories"
   homepage "https://www.offlineimap.org/"
-  url "https://github.com/OfflineIMAP/offlineimap/archive/v7.2.0.tar.gz"
-  sha256 "b6c8c6dbd67ec7cd6228a40866b5d6143f707d78faf9603d9328c9bc43fdf7c4"
+  url "https://github.com/OfflineIMAP/offlineimap/archive/v7.3.2.tar.gz"
+  sha256 "d47b564858c3e9fc7726ef58c9a4ee518d2958c5de3dcad6cd78b7cfe0a6bdef"
   head "https://github.com/OfflineIMAP/offlineimap.git"
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "7a4dc02c2ed9af5249bc3d063f5e10b7e0784a8660bd598664f8f77959ef58c7" => :high_sierra
-    sha256 "7a4dc02c2ed9af5249bc3d063f5e10b7e0784a8660bd598664f8f77959ef58c7" => :sierra
-    sha256 "7a4dc02c2ed9af5249bc3d063f5e10b7e0784a8660bd598664f8f77959ef58c7" => :el_capitan
+    sha256 "a9f7c26d77e5b5f117847fb068a5bdd9c4d691c73fa8c94aae12bec425953816" => :catalina
+    sha256 "843997b39d0b652700a5c6ccb2ce1a7efe76c32577018d792e25690c4166bb12" => :mojave
+    sha256 "843997b39d0b652700a5c6ccb2ce1a7efe76c32577018d792e25690c4166bb12" => :high_sierra
   end
 
-  depends_on "asciidoc" => :build
-  depends_on "docbook-xsl" => :build
-  depends_on "sphinx-doc" => :build
-  depends_on "python@2"
+  # Will never support Python 3
+  # https://github.com/OfflineIMAP/offlineimap/issues/616#issuecomment-491003691
+  uses_from_macos "python@2"
+
+  resource "rfc6555" do
+    url "https://files.pythonhosted.org/packages/58/a8/1dfba2db1f744657065562386069e547eefea9432d3f520d4af5b5fabd28/rfc6555-0.0.0.tar.gz"
+    sha256 "191cbba0315b53654155321e56a93466f42cd0a474b4f341df4d03264dcb5217"
+  end
+
+  resource "selectors2" do
+    url "https://files.pythonhosted.org/packages/a4/54/d690d931777ca7310562997fab09019582e6e557984c02d7647f3654f7f5/selectors2-2.0.1.tar.gz"
+    sha256 "81b77c4c6f607248b1d6bbdb5935403fef294b224b842a830bbfabb400c81884"
+  end
 
   resource "six" do
-    url "https://files.pythonhosted.org/packages/16/d8/bc6316cf98419719bd59c91742194c111b6f2e85abac88e496adefaf7afe/six-1.11.0.tar.gz"
-    sha256 "70e8a77beed4562e7f14fe23a786b54f6296e34344c23bc42f07b15018ff98e9"
+    url "https://files.pythonhosted.org/packages/94/3e/edcf6fef41d89187df7e38e868b2dd2182677922b600e880baad7749c865/six-1.13.0.tar.gz"
+    sha256 "30f610279e8b2578cab6db20741130331735c781b56053c59c4076da27f06b66"
   end
 
   def install
-    ENV["XML_CATALOG_FILES"] = "#{etc}/xml/catalog"
-    system "make", "docs"
-    man1.install "docs/offlineimap.1"
-    man7.install "docs/offlineimapui.7"
-
+    ENV.delete("PYTHONPATH")
     ENV.prepend_create_path "PYTHONPATH", libexec/"vendor/lib/python2.7/site-packages"
-    resource("six").stage do
-      system "python", *Language::Python.setup_install_args(libexec/"vendor")
+
+    resources.each do |r|
+      r.stage do
+        system "python", *Language::Python.setup_install_args(libexec/"vendor")
+      end
     end
+
+    # Remove hardcoded python2 that does not exist on high-sierra or mojave
+    inreplace "Makefile", "python2", "python"
+    inreplace "bin/offlineimap", "python2", "python"
+
     etc.install "offlineimap.conf", "offlineimap.conf.minimal"
     libexec.install "bin/offlineimap" => "offlineimap.py"
     libexec.install "offlineimap"
@@ -46,7 +59,7 @@ class Offlineimap < Formula
 
     * advanced configuration:
         cp -n #{etc}/offlineimap.conf ~/.offlineimaprc
-    EOS
+  EOS
   end
 
   plist_options :manual => "offlineimap"
@@ -82,7 +95,7 @@ class Offlineimap < Formula
         <string>/dev/null</string>
       </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do

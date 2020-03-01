@@ -1,19 +1,19 @@
 class Allegro < Formula
   desc "C/C++ multimedia library for cross-platform game development"
-  homepage "http://liballeg.org/"
-  url "https://github.com/liballeg/allegro5/releases/download/5.2.4.0/allegro-5.2.4.0.tar.gz"
-  sha256 "346163d456c5281c3b70271ecf525e1d7c754172aef4bab15803e012b12f2af1"
-
-  head "https://github.com/liballeg/allegro5.git", :branch => "master"
+  homepage "https://liballeg.org/"
+  url "https://github.com/liballeg/allegro5/releases/download/5.2.6.0/allegro-5.2.6.0.tar.gz"
+  sha256 "5de8189ec051e1865f359654f86ec68e2a12a94edd00ad06d1106caa5ff27763"
+  head "https://github.com/liballeg/allegro5.git"
 
   bottle do
     cellar :any
-    sha256 "13e8c8518d9925dd1480b7217233262ac098e40728d5f4f3be6c2dcc6f872340" => :high_sierra
-    sha256 "7b8fdcdbfc49555517f654a9b8ad961bb675509b7e365aa58d5f0b7f6b23024c" => :sierra
-    sha256 "b8ab4c72c7e3f6b8a46fba5af812ebe7f7b1821c44485facd6bec622a1f00300" => :el_capitan
+    sha256 "9e71511f6c8faa8449dd06bc30bd74497ee832e3e0ca7f3eb02bcef263ab4b3f" => :catalina
+    sha256 "ead9f69a2af4720ad8a9e020657b1db71e49cb3e83d9d8477d425de9d948ce07" => :mojave
+    sha256 "4ab4367b267e257a1aeee6cd65301922cf38cb37e8c11865edecedac5960f96e" => :high_sierra
   end
 
   depends_on "cmake" => :build
+  depends_on "dumb"
   depends_on "flac"
   depends_on "freetype"
   depends_on "libogg"
@@ -22,14 +22,10 @@ class Allegro < Formula
   depends_on "physfs"
   depends_on "theora"
   depends_on "webp"
-  depends_on "dumb" => :optional
 
   def install
-    args = std_cmake_args
-    args << "-DWANT_DOCS=OFF"
-    args << "-DWANT_MODAUDIO=1" if build.with?("dumb")
     mkdir "build" do
-      system "cmake", "..", *args
+      system "cmake", "..", *std_cmake_args, "-DWANT_DOCS=OFF"
       system "make", "install"
     end
   end
@@ -47,7 +43,8 @@ class Allegro < Formula
       }
     EOS
 
-    system ENV.cxx, "-I#{include}", "-L#{lib}", "-lallegro", "-lallegro_main", "-o", "allegro_test", "allegro_test.cpp"
+    system ENV.cxx, "-I#{include}", "-L#{lib}", "-lallegro", "-lallegro_main",
+                    "-o", "allegro_test", "allegro_test.cpp"
     system "./allegro_test"
   end
 end

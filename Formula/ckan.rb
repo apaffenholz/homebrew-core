@@ -1,8 +1,8 @@
 class Ckan < Formula
   desc "The Comprehensive Kerbal Archive Network"
   homepage "https://github.com/KSP-CKAN/CKAN/"
-  url "https://github.com/KSP-CKAN/CKAN/releases/download/v1.25.1/ckan.exe", :using => :nounzip
-  sha256 "39a5a001fc86728b3b33b6c1c220c5d1fba094ee12343d1d3d7055f455823489"
+  url "https://github.com/KSP-CKAN/CKAN/releases/download/v1.27.0/ckan.exe"
+  sha256 "f608acdfc3b957aad21d959b83e657e4e1ef0ba2de01a51fbd22d53244cd5ea0"
 
   bottle :unneeded
 
@@ -18,7 +18,7 @@ class Ckan < Formula
 
   def caveats; <<~EOS
     To use the CKAN GUI, install the ckan-app cask.
-    EOS
+  EOS
   end
 
   test do

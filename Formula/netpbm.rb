@@ -3,23 +3,26 @@ class Netpbm < Formula
   homepage "https://netpbm.sourceforge.io/"
   # Maintainers: Look at https://sourceforge.net/p/netpbm/code/HEAD/tree/
   # for stable versions and matching revisions.
-  url "svn://svn.code.sf.net/p/netpbm/code/stable", :revision => 3244
-  version "10.73.19"
+  url "https://svn.code.sf.net/p/netpbm/code/stable", :revision => 3737
+  version "10.86.09"
   version_scheme 1
-
   head "https://svn.code.sf.net/p/netpbm/code/trunk"
 
   bottle do
     cellar :any
-    sha256 "b952f6e8d66307f9a44569ab40fa095219b559092ac57e04c25521d392308c9f" => :high_sierra
-    sha256 "da5f9163d612ceb43a4becab8197819fd77e21820033cfd0812af23b4a3ecf39" => :sierra
-    sha256 "481b9b3b437bab23e0bd3b1b134532b11c15f67ec43980ce419e276476e55368" => :el_capitan
+    sha256 "8b8099572a949486264fb5a5ac54ae007e0ae642fa244612bac177882338a75a" => :catalina
+    sha256 "ca1763b796fc2ddc1cc012e8b7d6437f0d1de35cd4e3539d03fe35c5bc310878" => :mojave
+    sha256 "284b0f1cb75d961153a59f33bc6bda32d7ae0587487096b7eaa3e90c47cfdb14" => :high_sierra
   end
 
-  depends_on "libtiff"
   depends_on "jasper"
   depends_on "jpeg"
   depends_on "libpng"
+  depends_on "libtiff"
+
+  uses_from_macos "flex" => :build
+  uses_from_macos "libxml2"
+  uses_from_macos "zlib"
 
   conflicts_with "jbigkit", :because => "both install `pbm.5` and `pgm.5` files"
 
@@ -61,11 +64,9 @@ class Netpbm < Formula
       # do man pages explicitly; otherwise a junk file is installed in man/web
       man1.install Dir["man/man1/*.1"]
       man5.install Dir["man/man5/*.5"]
-      lib.install Dir["link/*.a"], Dir["link/*.dylib"]
+      lib.install Dir["staticlink/*.a"], Dir["sharedlink/*.dylib"]
       (lib/"pkgconfig").install "pkgconfig_template" => "netpbm.pc"
     end
-
-    (bin/"doc.url").unlink
   end
 
   test do

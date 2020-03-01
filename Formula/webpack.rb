@@ -4,36 +4,34 @@ require "json"
 class Webpack < Formula
   desc "Bundler for JavaScript and friends"
   homepage "https://webpack.js.org/"
-  url "https://registry.npmjs.org/webpack/-/webpack-4.8.1.tgz"
-  sha256 "c8bf7bcc1d8f71ad554d731f054b827bf4766c48bbf1399858d9ec20594676cc"
+  url "https://registry.npmjs.org/webpack/-/webpack-4.41.6.tgz"
+  sha256 "f951de3c1c961f3a6cbf9f390b1149747684136b6a11fcbc22847d7db606d46c"
   head "https://github.com/webpack/webpack.git"
 
   bottle do
-    sha256 "abb6d7d905f48cd80a9e647fb5a70f0762e35eb46235e3cb9bdfa75676fa708c" => :high_sierra
-    sha256 "67017b517a02bc0fe2af5dffc41a2a2757845f51d42d3a0e702108b5ba8a8d4c" => :sierra
-    sha256 "9d323ce78e3f44755bc0198dfc2fb1890d8560d1a1f579f97f3bf6223caa36f6" => :el_capitan
+    sha256 "ca3b5407abb2fb8cae4c45c04175cd39c29e6e790ad9c9928ffa8ced1c9a713f" => :catalina
+    sha256 "1efa057e881aaaa3d82702600e0bcb5fe893ca8af3fa26571ef21dce170855fd" => :mojave
+    sha256 "d499077d3501b44d7fd93754593b1d7953d5616ea32d07ee2474ea6109099ea2" => :high_sierra
   end
 
   depends_on "node"
 
   resource "webpack-cli" do
-    url "https://registry.npmjs.org/webpack-cli/-/webpack-cli-2.1.3.tgz"
-    sha256 "5587e4d8d14a122ee5130c27a5628f46774dfad432dd32175e4132bd6c3d345d"
+    url "https://registry.npmjs.org/webpack-cli/-/webpack-cli-3.3.11.tgz"
+    sha256 "dace2e99dc7b819b4695c69c327a0da9f56f799f15d20346b22a6cc22c5fb794"
   end
 
   def install
-    (buildpath/"cli/node_modules/webpack").install Dir["*"]
-    (buildpath/"cli").install resource("webpack-cli")
+    (buildpath/"node_modules/webpack").install Dir["*"]
+    buildpath.install resource("webpack-cli")
 
-    cd buildpath/"cli" do
-      # declare webpack as a bundledDependency of webpack-cli
-      pkg_json = JSON.parse(IO.read("package.json"))
-      pkg_json["dependencies"]["webpack"] = version
-      pkg_json["bundledDependencies"] = ["webpack"]
-      IO.write("package.json", JSON.pretty_generate(pkg_json))
+    # declare webpack as a bundledDependency of webpack-cli
+    pkg_json = JSON.parse(IO.read("package.json"))
+    pkg_json["dependencies"]["webpack"] = version
+    pkg_json["bundledDependencies"] = ["webpack"]
+    IO.write("package.json", JSON.pretty_generate(pkg_json))
 
-      system "npm", "install", *Language::Node.std_npm_install_args(libexec)
-    end
+    system "npm", "install", *Language::Node.std_npm_install_args(libexec)
 
     bin.install_symlink libexec/"bin/webpack-cli"
     bin.install_symlink libexec/"bin/webpack-cli" => "webpack"

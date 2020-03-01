@@ -3,13 +3,14 @@ class SpatialiteTools < Formula
   homepage "https://www.gaia-gis.it/fossil/spatialite-tools/index"
   url "https://www.gaia-gis.it/gaia-sins/spatialite-tools-sources/spatialite-tools-4.3.0.tar.gz"
   sha256 "f739859bc04f38735591be2f75009b98a2359033675ae310dffc3114a17ccf89"
-  revision 2
+  revision 4
 
   bottle do
     cellar :any
-    sha256 "b77b197aef8f05ac1816a9fd1b262aae9fc026772cc03be67ed5be57904d65fc" => :high_sierra
-    sha256 "96e80f05afa030b2646bdc60e3a466f0dcca91819890a4c5fff26f063b952db3" => :sierra
-    sha256 "e20202824ce1995a371f925ed69350601a888592274a778aaec1b78a97ef3867" => :el_capitan
+    rebuild 1
+    sha256 "2af02146b2f560166f748cf634bf56e7b6a0acf8723fceba8c15e8099a55511e" => :catalina
+    sha256 "056e46dfbe2f0823b251664e24a66417e8297cab5689113dff1b3b7383575447" => :mojave
+    sha256 "ea0094723dd6ea46ca4f1de0ac341afcef5b94ede6784dcffe97431bb5adbaec" => :high_sierra
   end
 
   depends_on "pkg-config" => :build

@@ -1,25 +1,19 @@
 class Silk < Formula
   desc "Collection of traffic analysis tools"
   homepage "https://tools.netsa.cert.org/silk/"
-  url "https://tools.netsa.cert.org/releases/silk-3.17.1.tar.gz"
-  sha256 "1580dfabc3ff8cb90b0f303d5758d8be4515f130931601c49c05895f0bd1e1a1"
-  revision 1
+  url "https://tools.netsa.cert.org/releases/silk-3.19.0.tar.gz"
+  sha256 "0f5bdcf437a1dc0429a5acb48b8e9ef18050999a230920369c05b2db9f020695"
 
   bottle do
-    sha256 "b504b58eaebdc19314ee7aaa999ad4e29bc57dfdabd64f91a39fd6cd8f3a2e9a" => :high_sierra
-    sha256 "59b3b9eadf93a259d938929e85c7541809db128fbbfb407ab4e5bd9e470ba70b" => :sierra
-    sha256 "ad7b9a29d9b7b648501a57426acd3e92655ffaf760dcfa6cacd1bc6221067d89" => :el_capitan
+    sha256 "1e9d81c01f87a3f0edc251a1623f44f64aaa6bccda5ed3ea6291d163519e7600" => :catalina
+    sha256 "a4b52045add179910361637d4c5b69f67f8587579a0f48b8b7b2f5df9b820579" => :mojave
+    sha256 "f454d82c526c74756a99b67b8b4354bd45ad3196d3b626877bb14f70b4404df6" => :high_sierra
   end
-
-  option "with-python@2", "Build with the PySiLK python interface"
-
-  deprecated_option "with-python" => "with-python@2"
 
   depends_on "pkg-config" => :build
   depends_on "glib"
   depends_on "libfixbuf"
   depends_on "yaf"
-  depends_on "python@2" => :optional
 
   def install
     args = %W[
@@ -30,14 +24,11 @@ class Silk < Formula
       --enable-data-rootdir=#{var}/silk
     ]
 
-    if build.with? "python@2"
-      args << "--with-python" << "--with-python-prefix=#{prefix}"
-    end
     system "./configure", *args
     system "make"
     system "make", "install"
 
-    (var+"silk").mkpath
+    (var/"silk").mkpath
   end
 
   test do

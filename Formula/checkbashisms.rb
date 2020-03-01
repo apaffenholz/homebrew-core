@@ -1,9 +1,8 @@
 class Checkbashisms < Formula
   desc "Checks for bashisms in shell scripts"
   homepage "https://launchpad.net/ubuntu/+source/devscripts/"
-  url "https://mirrors.ocf.berkeley.edu/debian/pool/main/d/devscripts/devscripts_2.18.2.tar.xz"
-  mirror "https://mirrorservice.org/sites/ftp.debian.org/debian/pool/main/d/devscripts/devscripts_2.18.2.tar.xz"
-  sha256 "645b5814be7a9d1f4f3df1931f6d9c645e1fd75071ddafabd798f9459277d435"
+  url "https://deb.debian.org/debian/pool/main/d/devscripts/devscripts_2.20.2.tar.xz"
+  sha256 "2bb71941cd087f9e8d8ed8d62f42d6661be13f341670c1d2c1e584d03b5e6535"
 
   bottle :unneeded
 

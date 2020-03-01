@@ -1,19 +1,18 @@
 class Txr < Formula
   desc "Original, new programming language for convenient data munging"
   homepage "https://www.nongnu.org/txr/"
-  url "http://www.kylheku.com/cgit/txr/snapshot/txr-195.tar.bz2"
-  sha256 "5b3fc62e51636f08fe0da02969a83c9afe0773fbd68ea7ec6925525ab000314b"
+  url "http://www.kylheku.com/cgit/txr/snapshot/txr-232.tar.bz2"
+  sha256 "e96b01ce378c21cfbbc69de3c9ff22cd92bc0878c3dfd0356367300154dcab61"
   head "http://www.kylheku.com/git/txr", :using => :git
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "3102d1f5bd706f58f9071d96d396d21246b8f7867280220f8a3069e36b9472f1" => :high_sierra
-    sha256 "af554a088a4f5f7bfcff772c1aa700fcaa84fb15cadd0deef277a62a1cbae760" => :sierra
-    sha256 "4e75c4307b05e1a1b9bbfe9edbc0964cb6a9816fe08f6168ed7c77cd552b284f" => :el_capitan
+    sha256 "79c2b3ba017b621bc3a7aea16ec0126b6fc1477cbe5b5c3d483c25c5620cf677" => :catalina
+    sha256 "9185383b8ca55f43ac0713f0c4fb24649e6b2f01ebd4decb66e0978d6010aecd" => :mojave
+    sha256 "84544b80f30a8f5d96403a7b6380bdc452adb30634ad1cef29420f28ebf9b867" => :high_sierra
   end
 
   def install
-    ENV.deparallelize
     system "./configure", "--prefix=#{prefix}"
     system "make"
     system "make", "install"

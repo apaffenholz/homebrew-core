@@ -1,8 +1,8 @@
 class DockerComposeCompletion < Formula
   desc "Docker-compose completion script"
   homepage "https://docs.docker.com/compose/completion/"
-  url "https://github.com/docker/compose/archive/1.21.2.tar.gz"
-  sha256 "3fdaa361dceb919b6008a925b8b672d7402cc3dd8277b8f26b028dd546d39926"
+  url "https://github.com/docker/compose/archive/1.25.4.tar.gz"
+  sha256 "844a3d9c9ad13f1227bd828b3693dfb2001dcaea14de7c2a71f8aee47dbf19a7"
   head "https://github.com/docker/compose.git"
 
   bottle :unneeded
@@ -12,6 +12,7 @@ class DockerComposeCompletion < Formula
 
   def install
     bash_completion.install "contrib/completion/bash/docker-compose"
+    fish_completion.install "contrib/completion/fish/docker-compose.fish"
     zsh_completion.install "contrib/completion/zsh/_docker-compose"
   end
 

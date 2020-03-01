@@ -1,15 +1,15 @@
 class Metabase < Formula
   desc "Business intelligence report server"
   homepage "https://www.metabase.com/"
-  url "http://downloads.metabase.com/v0.29.0/metabase.jar"
-  sha256 "a22a6a2f758c252ef0559b70ae355bbd31d4156a8c3c7bf1bc664c549901d8b5"
+  url "https://downloads.metabase.com/v0.34.2/metabase.jar"
+  sha256 "f3ca633444c60f8b8dd4ece4969c576a1431efd07a9971b4f45d379420aa170a"
 
   head do
     url "https://github.com/metabase/metabase.git"
 
+    depends_on "leiningen" => :build
     depends_on "node" => :build
     depends_on "yarn" => :build
-    depends_on "leiningen" => :build
   end
 
   bottle :unneeded
@@ -56,7 +56,7 @@ class Metabase < Formula
       <string>/dev/null</string>
     </dict>
     </plist>
-    EOS
+  EOS
   end
 
   test do

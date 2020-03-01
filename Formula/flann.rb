@@ -3,21 +3,17 @@ class Flann < Formula
   homepage "https://www.cs.ubc.ca/research/flann/"
   url "https://github.com/mariusmuja/flann/archive/1.9.1.tar.gz"
   sha256 "b23b5f4e71139faa3bcb39e6bbcc76967fbaf308c4ee9d4f5bfbeceaa76cc5d3"
-  revision 4
+  revision 8
 
   bottle do
     cellar :any
-    sha256 "5f8c131f79f06edb6340b707ba999c20b2dc9b77bb2f47436dbddffb38e0dc31" => :high_sierra
-    sha256 "ae8fc018e89e774c317af7fe27ec7e3b193cfc45c1252ddd796c38817d63fe2a" => :sierra
-    sha256 "1b5f2d3f1e1cb483473871b6df9aba70900110e6888d45480d829a27f4600428" => :el_capitan
+    sha256 "3292091ca87b96e55066037d23a36b3a1e4a7da976692376c7ed8aa1e38db71e" => :catalina
+    sha256 "4d1b3d6e306e54bb160f1698a36d9b85d1d01b411651284ea00717b2e91c0089" => :mojave
+    sha256 "8c91ce1046b4f961f5c6b4c2fcb3602ab8f889d7a3a1c3806f8aeaa52d4b7ac0" => :high_sierra
   end
-
-  deprecated_option "with-python" => "with-python@2"
 
   depends_on "cmake" => :build
   depends_on "hdf5"
-  depends_on "python@2" => :optional
-  depends_on "numpy" if build.with? "python@2"
 
   resource("dataset.dat") do
     url "https://www.cs.ubc.ca/research/flann/uploads/FLANN/datasets/dataset.dat"
@@ -35,13 +31,7 @@ class Flann < Formula
   end
 
   def install
-    if build.with? "python@2"
-      pyarg = "-DBUILD_PYTHON_BINDINGS:BOOL=ON"
-    else
-      pyarg = "-DBUILD_PYTHON_BINDINGS:BOOL=OFF"
-    end
-
-    system "cmake", ".", *std_cmake_args, pyarg
+    system "cmake", ".", *std_cmake_args, "-DBUILD_PYTHON_BINDINGS:BOOL=OFF", "-DBUILD_MATLAB_BINDINGS:BOOL=OFF"
     system "make", "install"
   end
 

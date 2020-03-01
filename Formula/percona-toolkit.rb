@@ -1,30 +1,38 @@
 class PerconaToolkit < Formula
   desc "Percona Toolkit for MySQL"
   homepage "https://www.percona.com/software/percona-toolkit/"
-  url "https://www.percona.com/downloads/percona-toolkit/3.0.9/source/tarball/percona-toolkit-3.0.9.tar.gz"
-  sha256 "1b66fbd0e3427a189980d4c02897da1444ffd2cf40156142728ee7e5cd97be88"
+  url "https://www.percona.com/downloads/percona-toolkit/3.1.0/source/tarball/percona-toolkit-3.1.0.tar.gz"
+  sha256 "722593773825efe7626ff0b74de6a2133483c9c89fd7812bfe440edaacaec9cc"
   head "lp:percona-toolkit", :using => :bzr
 
   bottle do
     cellar :any
-    sha256 "feb374fc5c5c3e6c84ae3b4cf04d3ae9df6e4b472e4cabc19d70ee8a1c1ba96d" => :high_sierra
-    sha256 "a42104a8276ea1010d0b66fcf550c794e57cdf6e2713ce52433fed8669b2e12c" => :sierra
-    sha256 "e86ffbdfe686a2f3d7d5d4fd9b7381258fce527b1aa001098c210cf209d32720" => :el_capitan
+    sha256 "d03904f208a454aa020770ff88daacf5358afd7b445b079aee8a9fd30a392a1c" => :catalina
+    sha256 "d3d044c5015898fcba816d2dc1cb5d92f4f7263373005c0318970682104bbb69" => :mojave
+    sha256 "82c54ae873973d9f1f22217488163ef8d4d4136478f21f72d97854c4fe2ff929" => :high_sierra
   end
 
-  depends_on "mysql"
-  depends_on "openssl"
+  depends_on "mysql-client"
+  depends_on "openssl@1.1"
+
+  uses_from_macos "perl"
+
+  # In Mojave, this is not part of the system Perl anymore
+  if MacOS.version >= :mojave
+    resource "DBI" do
+      url "https://cpan.metacpan.org/authors/id/T/TI/TIMB/DBI-1.642.tar.gz"
+      sha256 "3f2025023a56286cebd15cb495e36ccd9b456c3cc229bf2ce1f69e9ebfc27f5d"
+    end
+  end
 
   resource "DBD::mysql" do
     url "https://cpan.metacpan.org/authors/id/C/CA/CAPTTOFU/DBD-mysql-4.046.tar.gz"
-    mirror "http://search.cpan.org/CPAN/authors/id/C/CA/CAPTTOFU/DBD-mysql-4.046.tar.gz"
     sha256 "6165652ec959d05b97f5413fa3dff014b78a44cf6de21ae87283b28378daf1f7"
   end
 
   resource "JSON" do
-    url "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-2.97001.tar.gz"
-    mirror "http://search.cpan.org/CPAN/authors/id/I/IS/ISHIGAKI/JSON-2.97001.tar.gz"
-    sha256 "e277d9385633574923f48c297e1b8acad3170c69fa590e31fa466040fc6f8f5a"
+    url "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-4.00.tar.gz"
+    sha256 "c4da1f1075878604b7b1f085ff3963e1073ed1c603c3bc9f0b0591e3831a1068"
   end
 
   def install
@@ -37,7 +45,7 @@ class PerconaToolkit < Formula
     end
 
     system "perl", "Makefile.PL", "INSTALL_BASE=#{prefix}"
-    system "make", "test", "install"
+    system "make", "install"
     share.install prefix/"man"
     bin.env_script_all_files(libexec/"bin", :PERL5LIB => ENV["PERL5LIB"])
   end

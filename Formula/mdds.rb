@@ -1,19 +1,19 @@
 class Mdds < Formula
   desc "Multi-dimensional data structure and indexing algorithm"
   homepage "https://gitlab.com/mdds/mdds"
-  url "https://kohei.us/files/mdds/src/mdds-1.3.1.tar.bz2"
-  sha256 "dcb8cd2425567a5a5ec164afea475bce57784bca3e352ad4cbdd3d1a7e08e5a1"
+  url "https://kohei.us/files/mdds/src/mdds-1.5.0.tar.bz2"
+  sha256 "144d6debd7be32726f332eac14ef9f17e2d3cf89cb3250eb31a7127e0789680d"
+  revision 1
 
   bottle do
     cellar :any_skip_relocation
-    sha256 "5a1f26a51dbd73b634db0a3ec72d80758e0b1b94a50908bace789eb8994b9d87" => :high_sierra
-    sha256 "5a1f26a51dbd73b634db0a3ec72d80758e0b1b94a50908bace789eb8994b9d87" => :sierra
-    sha256 "5a1f26a51dbd73b634db0a3ec72d80758e0b1b94a50908bace789eb8994b9d87" => :el_capitan
+    sha256 "b99d97a6301b18f1abb2e8743115f099dc5ed753a5d44949affa083af3d1b0a1" => :catalina
+    sha256 "b99d97a6301b18f1abb2e8743115f099dc5ed753a5d44949affa083af3d1b0a1" => :mojave
+    sha256 "b99d97a6301b18f1abb2e8743115f099dc5ed753a5d44949affa083af3d1b0a1" => :high_sierra
   end
 
   depends_on "autoconf" => :build
   depends_on "boost"
-  needs :cxx11
 
   def install
     # Gets it to work when the CLT is installed

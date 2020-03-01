@@ -1,8 +1,8 @@
 class Liquibase < Formula
   desc "Library for database change tracking"
   homepage "https://www.liquibase.org/"
-  url "https://github.com/liquibase/liquibase/releases/download/liquibase-parent-3.6.1/liquibase-3.6.1-bin.tar.gz"
-  sha256 "0413e379f7d1deb5382f9fc4283ba1b7b085f7abaf6c1a3e45cbf9510accc557"
+  url "https://github.com/liquibase/liquibase/releases/download/v3.8.6/liquibase-3.8.6.tar.gz"
+  sha256 "a4279a81cb846b3bb7271771137232a24a3adfa6154e9087bbb28e2827daa6a7"
 
   bottle :unneeded
 
@@ -18,7 +18,7 @@ class Liquibase < Formula
   def caveats; <<~EOS
     You should set the environment variable LIQUIBASE_HOME to
       #{opt_libexec}
-    EOS
+  EOS
   end
 
   test do

@@ -1,25 +1,25 @@
 class Isl < Formula
   desc "Integer Set Library for the polyhedral model"
-  homepage "http://isl.gforge.inria.fr"
+  homepage "https://isl.gforge.inria.fr/"
   # Note: Always use tarball instead of git tag for stable version.
   #
   # Currently isl detects its version using source code directory name
   # and update isl_version() function accordingly.  All other names will
   # result in isl_version() function returning "UNKNOWN" and hence break
   # package detection.
-  url "http://isl.gforge.inria.fr/isl-0.19.tar.xz"
-  mirror "https://mirrors.ocf.berkeley.edu/debian/pool/main/i/isl/isl_0.19.orig.tar.xz"
-  sha256 "6d6c1aa00e2a6dfc509fa46d9a9dbe93af0c451e196a670577a148feecf6b8a5"
+  url "http://isl.gforge.inria.fr/isl-0.22.tar.xz"
+  mirror "https://deb.debian.org/debian/pool/main/i/isl/isl_0.22.orig.tar.xz"
+  sha256 "6c8bc56c477affecba9c59e2c9f026967ac8bad01b51bdd07916db40a517b9fa"
 
   bottle do
     cellar :any
-    sha256 "e286024c142af0e968d8562e83745a05dd059dbe226c41fe6053c8fd481815fe" => :high_sierra
-    sha256 "23c7305a7f227e1749a15584eb203ec9f1f49f1f4312753a9ee360f89b71d304" => :sierra
-    sha256 "c00c85da652a572356e54cad1a6ff986f136f6088c142dfcdbfc166bd7144d1e" => :el_capitan
+    sha256 "3908e18211bb5e4a76cac2a9ebb9c83dbf3c8cd8138f0e74970ede9802d614fb" => :catalina
+    sha256 "02f2d0a55d47fe5e548b7169e4bbed902dd1869200e4b65422ec7dc0de2f02c8" => :mojave
+    sha256 "e9e611d53b38b536b214e1431eb50b4550cb2b20bfc987267ebfe2db087a6fcc" => :high_sierra
   end
 
   head do
-    url "http://repo.or.cz/r/isl.git"
+    url "https://repo.or.cz/isl.git"
 
     depends_on "autoconf" => :build
     depends_on "automake" => :build
