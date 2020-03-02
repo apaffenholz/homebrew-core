@@ -1,8 +1,8 @@
 class Polymake < Formula
   desc "Tool for computations in algorithmic discrete geometry"
   homepage "https://polymake.org/"
-  url "https://polymake.org/lib/exe/fetch.php/download/polymake-3.2r3.tar.bz2"
-  sha256 "8423dac8938dcd96e15b1195432f6a9844e8c34727c829395755a5067ce43440"
+  url "https://polymake.org/lib/exe/fetch.php/download/polymake-4.0r1.tar.bz2"
+  sha256 "06654c5b213e74d7ff521a4f52e446f46a54e52e7da795396b79dd8beead3000"
 
   depends_on "boost"
   depends_on "gmp"
@@ -13,8 +13,13 @@ class Polymake < Formula
   depends_on "singular"
 
   resource "Term::Readline::Gnu" do
-    url "https://cpan.metacpan.org/authors/id/H/HA/HAYASHI/Term-ReadLine-Gnu-1.35.tar.gz"
-    sha256 "575d32d4ab67cd656f314e8d0ee3d45d2491078f3b2421e520c4273e92eb9125"
+    url "https://cpan.metacpan.org/authors/id/H/HA/HAYASHI/Term-ReadLine-Gnu-1.36.tar.gz"
+    sha256 "9a08f7a4013c9b865541c10dbba1210779eb9128b961250b746d26702bab6925"
+  end
+
+  resource "JSON" do
+    url "https://cpan.metacpan.org/authors/id/I/IS/ISHIGAKI/JSON-4.02.tar.gz"
+    sha256 "444a88755a89ffa2a5424ab4ed1d11dca61808ebef57e81243424619a9e8627c"
   end
 
   def install
@@ -33,6 +38,13 @@ class Polymake < Formula
       system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}/perl5",
                      "--includedir=#{Formula["readline"].opt_include}",
                      "--libdir=#{Formula["readline"].opt_lib}"
+      system "make", "install"
+    end
+
+    resource("JSON").stage do
+      # Prevent the Makefile to try and build universal binaries
+      ENV.refurbish_args
+      system "perl", "Makefile.PL", "INSTALL_BASE=#{libexec}/perl5"
       system "make", "install"
     end
 
